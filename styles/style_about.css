@@ -1,0 +1,387 @@
+/* 
+    Author: Nguyen Ho Quang Minh
+    Purpose: CSS file for styling the website with common styles.
+*/
+
+
+@import url('https://fonts.googleapis.com/css2?family=Jaro:opsz@6..72&family=Ramabhadra&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Righteous&display=swap');
+
+html {
+    scrollbar-color: #555555 transparent;
+    scrollbar-width: thin;
+    scroll-behavior: smooth;
+}
+
+/* BODY SECTION */
+body {
+    background-color: #141414;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Ramabhadra', sans-serif;
+    margin: 0;
+}
+
+/* HEADER SECTION */
+.header {
+    align-items: center;
+    background-color: #242424;
+    display: flex;
+    flex-direction: row;
+    height: 75px;
+    justify-content: space-between;
+    padding: 5px 30px;
+}
+
+.header-logo {
+    align-items: center;
+    color: white;
+    display: flex;
+    font-family: 'Ramabhadra', sans-serif;
+    font-size: 38px;
+}
+
+.header-logo img {
+    height: 60px;
+    margin: 0 5px;
+    object-fit: cover;
+    width: 38px;
+}
+
+/* NAVBAR SECTION */
+.nav-bar {
+    background-color: #242424;
+    display: flex;
+    gap: 10px;
+}
+
+.nav-item {
+    align-items: center;
+    border-radius: 10px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    text-decoration: none;
+    transition: 0.3s ease-in-out;
+    width: 115px;
+}
+
+.nav-item:hover {
+    background-color: #007bff;
+    scale: 1.1;
+}
+
+.nav-item p {
+    font-family: 'Righteous', sans-serif;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    transition: 0.3s ease-in-out;
+}
+
+.nav-item .nav-main-item {
+    font-size: 16px;
+    font-weight: bold;
+    transform: translateY(10px);
+}
+
+.nav-item .nav-sub-item {
+    font-size: 10px;
+    opacity: 0;
+    transform: translateY(15px);
+    transition: 0.3s ease-in-out;
+}
+
+.nav-item:hover .nav-main-item {
+    transform: translateY(-5px);
+}
+
+.nav-item:hover .nav-sub-item {
+    opacity: 1;
+    transform: translateY(-5px);
+}
+
+#last-item {
+    width: 155px;
+}
+
+/* HORIZONTAL LINE DEVIDER */
+.divider-container {
+    display: flex;
+    align-items: center;
+    height: 2px;
+    margin: 40px 0 40px 0;
+}
+
+.hr {
+    flex-grow: 1;
+    height: 2px;
+    background-color: #565656;
+    opacity: 0;
+    animation: fadeIn 1.5s forwards;
+}
+
+/* BANNER SECTION */
+.banner-container {
+    align-items: center;
+    background: linear-gradient(135deg, #242424 0%, #333333 100%);
+    display: flex;
+    justify-content: center;
+}
+
+.banner-container img {
+    width: 100%;
+}
+
+/* CONTAINER SECTION */
+.main-container {
+    margin: auto;
+    max-width: 1200px;
+    padding: 20px;
+}
+
+/* INFO SECTION */
+.group-name-container {
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.group-name-container h1 {
+    color: #007bff;
+    font: bold 2.5em 'mono', sans-serif;
+}
+
+/* CONTRIBUTOR SECTION */
+.contributions {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.contributor-list {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    list-style-type: none;
+    margin: 20px 0;
+    padding: 0;
+}
+
+.contributor-list li {
+    display: inline;
+}
+
+.contributions h2 {
+    color: #ffffff;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+/* CARD SLIDER SECTION */
+.card-slider {
+    align-content: flex-start;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.card {
+    background-color: #333333;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    height: 350px;
+    justify-content: flex-start;
+    margin: 10px;
+    opacity: 1;
+    padding: 15px;
+    text-align: center;
+    transition: transform 0.3s ease-in-out, opacity 0.3s ease-in-out;
+    width: 240px;
+}
+
+.card-slider:hover .card:not(:hover) {
+    opacity: 0.2;
+}
+
+.card-slider .card:hover {
+    opacity: 1;
+    transform: scale(1.05);
+    box-shadow: 0 4px 15px rgba(0, 123, 255, 0.5);
+}
+
+.card-header {
+    color: #fff;
+    font-size: 1.2rem;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.card-body {
+    color: #ddd;
+    font-size: 1rem;
+    margin-bottom: 10px;
+    text-align: left;
+}
+
+.card aside {
+    color: #ccc;
+    font-size: 0.9rem;
+    margin-top: 10px;
+    text-align: left;
+}
+
+.card aside h4 {
+    color: #fff;
+    font-size: 1.1rem;
+    line-height: 0;
+    margin-top: 10px;
+}
+
+/* DEFINE LIST STYLING */
+dl {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    margin: 20px 0;
+}
+
+dt {
+    width: 150px;
+    font-weight: bold;
+    color: #ffffff;
+    margin-right: 10px;
+}
+
+dd {
+    margin: 0;
+    color: #d0d0d0;
+    margin-bottom: 10px;
+}
+
+/* PHOTO AND FIGURE STYLING */
+.detail-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+figure {
+    float: right;
+    margin-top: 0;
+    margin-right: 0;
+    margin-left: auto;
+}
+
+figure img {
+    border: 2px solid #555555;
+    border-radius: 8px;
+    max-width: 320px;
+    height: auto;
+}
+
+/* TABLE SECTION */
+table {
+    border-collapse: collapse;
+    border-radius: 10px;
+    margin: 20px 0;
+    overflow: hidden;
+    width: 100%;
+}
+
+th, td {
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
+
+th {
+    background-color: #007bff;
+}
+
+td {
+    border: 1px solid #555;
+}
+
+/* FOOTER SECTION */
+.footer {
+    position: relative;
+    height: 70px;
+    border-top: 2px solid #333333;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+    background-color: #202020;
+    padding-left: 50px;
+    padding-right: 50px;
+}
+
+.copyright {
+    margin-top: 15px;
+    color: #878787;
+    font-size: 14px;
+}
+
+.link {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
+.footer-menu {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-menu ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+.footer-menu li {
+    margin-left: 20px;
+}
+
+.footer-menu li a {
+    color: #878787;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.footer-menu li a:hover {
+    color: #ff5e14;
+    text-decoration: underline;
+}
+
+/* LOAD ANIMATION */
+.container, .banner, .footer {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

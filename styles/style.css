@@ -1,0 +1,444 @@
+/* 
+    Author: Dang Quang Thinh (SWS01218)
+    Purpose: CSS file for styling the website with common styles for header, menu, footer, etc.
+*/
+
+
+@import url('https://fonts.googleapis.com/css2?family=Jaro:opsz@6..72&family=Ramabhadra&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Righteous&display=swap');
+
+html {
+    scrollbar-color: #555555 transparent;
+    scrollbar-width: thin;
+    scroll-behavior: smooth;
+}
+
+/* BODY SECTION */
+body {
+    background-color: #141414;
+    color: #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Ramabhadra', sans-serif;
+    margin: 0;
+}
+
+/* HEADER SECTION */
+.header {
+    align-items: center;
+    background-color: #242424;
+    display: flex;
+    flex-direction: row;
+    height: 75px;
+    justify-content: space-between;
+    padding: 5px 30px;
+}
+
+.header-logo {
+    align-items: center;
+    color: white;
+    display: flex;
+    font-family: 'Ramabhadra', sans-serif;
+    font-size: 38px;
+}
+
+.header-logo img {
+    height: 60px;
+    margin: 0 5px;
+    object-fit: cover;
+    width: 38px;
+}
+
+/* NAVBAR SECTION */
+.nav-bar {
+    background-color: #242424;
+    display: flex;
+    gap: 10px;
+}
+
+.nav-item {
+    align-items: center;
+    border-radius: 10px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    text-decoration: none;
+    transition: 0.3s ease-in-out;
+    width: 115px;
+}
+
+.nav-item:hover {
+    background-color: #007bff;
+    scale: 1.1;
+}
+
+.nav-item p {
+    font-family: 'Righteous', sans-serif;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    transition: 0.3s ease-in-out;
+}
+
+.nav-item .nav-main-item {
+    font-size: 16px;
+    font-weight: bold;
+    transform: translateY(10px);
+}
+
+.nav-item .nav-sub-item {
+    font-size: 10px;
+    opacity: 0;
+    transform: translateY(15px);
+    transition: 0.3s ease-in-out;
+}
+
+.nav-item:hover .nav-main-item {
+    transform: translateY(-5px);
+}
+
+.nav-item:hover .nav-sub-item {
+    opacity: 1;
+    transform: translateY(-5px);
+}
+
+#last-item {
+    width: 155px;
+}
+
+/* BANNER SECTION */
+.banner-container {
+    font-weight: bold;
+    height: 500px;
+    position: relative;
+}
+
+.banner-content {
+    animation: backInFromLeft 1s forwards;
+    display: flex;
+    flex-direction: column;
+    margin-left: 30px;
+    margin-top: 50px;
+    position: absolute;
+    transform: translateX(-100%);
+    width: 500px;
+    z-index: 50;
+}
+
+@keyframes backInFromLeft {
+    0% {
+        opacity: 0;
+        transform: translateX(-100%);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.banner-sub-title {
+    color: #0ea5e9;
+    font-size: 20px;
+    margin: 0;
+}
+
+.banner-main-title {
+    color: #000000;
+    font-size: 32px;
+    line-height: 1.25;
+    margin: 0;
+}
+
+.banner-description {
+    background-color: transparent;
+    color: #000000;
+    font-family: 'Courier New', monospace;
+    font-size: 15px;
+    height: 100px;
+    margin: 10px 0 0 10px;
+    width: 450px;
+}
+
+.banner-buttons {
+    display: flex;
+    flex-direction: row;
+    font-family: 'Courier New', monospace;
+    font-size: 15px;
+    margin-left: 20px;
+}
+
+.banner-buttons a {
+    border-radius: 5px;
+    color: white;
+    display: inline-block;
+    padding: 15px 30px;
+    font-size: 18px;
+    text-decoration: none;
+    transition: 0.3s ease-in-out;
+}
+
+.banner-btn-primary {
+    background-color: #007bff;
+}
+
+.banner-btn-success {
+    background-color: #28a745;
+    margin-left: 50px;
+}
+
+.banner-buttons a:hover {
+    opacity: 0.8;
+    scale: 1.15;
+}
+
+.banner-container img {
+    height: 100%;
+    object-fit: cover;
+    position: relative;
+    width: 100%;
+    z-index: 1;
+}
+
+/* HORIZONTAL LINE DIVIDER SECTION */
+.divider-container {
+    align-items: center;
+    display: flex;
+    height: 2px;
+    margin: 40px;
+}
+
+.hr {
+    background-color: #565656;
+    flex-grow: 1;
+    height: 2px;
+    opacity: 0;
+    animation: fadeIn 1.5s forwards;
+}
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+/* CONTENT SECTION */
+.main-container {
+    background-color: #141414;
+    display: flex;
+    flex-direction: column;
+    height: 1920px;
+    position: relative;
+}
+
+.intro-container {
+    display: flex;
+    flex-direction: row;
+    height: 750px;
+    width: 100%;
+}
+
+.intro-container img {
+    height: 100%;
+    object-fit: cover;
+    width: 750px;
+}
+
+.intro-content-container {
+    align-items: center;
+    background-color: #292929;
+    color: #ffffff;
+    display: flex;
+    flex-grow: 1;
+    padding: 20px;
+}
+
+.intro-content-animation {
+    animation: backInFromRight 1s forwards;
+    display: flex;
+    flex-direction: column;
+    margin-left: 50px;
+    transform: translateX(100%);
+}
+
+@keyframes backInFromRight {
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.intro-title {
+    color: #ffffff;
+    font-family: 'Ramabhadra', sans-serif;
+    font-size: 36px;
+    font-weight: bold;
+    margin: 0;
+}
+
+.intro-description {
+    color: #ffffff;
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+    margin: 0;
+}
+
+/* MENU SECTION */
+.menu-container {
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    height: 1500px;
+    margin: 0px 40px 40px 40px;
+    padding: 10px;
+    width: 1450px;
+}
+
+.menu-header {
+    height: 75px;
+    margin-bottom: 20px;
+    width: 100%;
+}
+
+.header-title {
+    font-family: 'Ramabhadra', sans-serif;
+    font-size: 36px;
+    line-height: 1;
+    margin: 0;
+}
+
+.header-description {
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+}
+
+.menu-row-container {
+    display: flex;
+    height: 50%;
+    width: 100%;
+}
+
+.second-column-container {
+    margin-top: 10px;
+}
+
+.menu-description-container {
+    background-color: #292929;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    margin: 0 0 10px;
+    padding: 5px;
+    transition: 0.3s ease-in-out;
+    width: 50%;
+}
+
+.second-row-container {
+    margin-left: 20px;
+}
+
+.menu-description-container:hover {
+    border: 2px solid #333333;
+    scale: 1.02;
+}
+
+.menu-description-container img {
+    height: 430px;
+    max-height: 430px;
+    width: 100%;
+}
+
+.menu-description-container img {
+    margin: 0;
+    padding: 0;
+}
+
+.card-title {
+    font-family: 'Ramabhadra', sans-serif;
+    font-size: 24px;
+    margin: 0 0 0 5px;
+    transition: 0.5s ease-in-out;
+}
+
+.menu-description-container:hover .card-title {
+    color: #007bff;
+}
+
+.card-description {
+    font-family: 'Courier New', monospace;
+    font-size: 18px;
+    margin: 0 0 0 15px;
+    transition: 1s ease-in-out;
+}
+
+.menu-description-container:hover .card-description {
+    text-decoration: underline;
+}
+
+.menu-link {
+    color: #e0e0e0;
+    text-decoration: none;
+}
+
+/* FOOTER SECTION */
+.footer {
+    border-top: 2px solid #333333;
+    height: 70px;
+    position: relative;
+}
+
+.footer-content {
+    align-items: center;
+    background-color: #202020;
+    display: flex;
+    height: 100%;
+    justify-content: space-between;
+    padding-left: 50px;
+    padding-right: 50px;
+}
+
+.copyright {
+    color: #878787;
+    font-size: 14px;
+    margin-top: 15px;
+}
+
+.link {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
+.footer-menu {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+}
+
+.footer-menu ul {
+    display: flex;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+.footer-menu li {
+    margin-left: 20px;
+}
+
+.footer-menu li a {
+    color: #878787;
+    font-size: 14px;
+    text-decoration: none;
+}
+
+.footer-menu li a:hover {
+    color: #ff5e14;
+    text-decoration: underline;
+}

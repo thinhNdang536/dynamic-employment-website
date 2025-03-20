@@ -1,0 +1,377 @@
+/* 
+    Author: Nguyen Bach Tung
+    Purpose: CSS file for styling the website with common styles for header, menu, footer, etc.
+*/
+
+
+@import url('https://fonts.googleapis.com/css2?family=Jaro:opsz@6..72&family=Ramabhadra&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Righteous&display=swap');
+
+html {
+    scrollbar-color: #555555 transparent;
+    scrollbar-width: thin;
+    scroll-behavior: smooth;
+}
+
+/* BODY SECTION */
+body {
+    background-color: #1a1a1a;
+    color: #e0e0e0;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Ramabhadra', sans-serif;
+    margin: 0;
+}
+
+/* HEADER SECTION */
+.header {
+    align-items: center;
+    background-color: #242424;
+    display: flex;
+    flex-direction: row;
+    height: 75px;
+    justify-content: space-between;
+    padding: 5px 30px;
+}
+
+.header-logo {
+    align-items: center;
+    color: white;
+    display: flex;
+    font-family: 'Ramabhadra', sans-serif;
+    font-size: 38px;
+}
+
+.header-logo img {
+    height: 60px;
+    margin: 0 5px;
+    object-fit: cover;
+    width: 38px;
+}
+
+/* NAVBAR SECTION */
+.nav-bar {
+    background-color: #242424;
+    display: flex;
+    gap: 10px;
+}
+
+.nav-item {
+    align-items: center;
+    border-radius: 10px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    text-decoration: none;
+    transition: 0.3s ease-in-out;
+    width: 115px;
+}
+
+.nav-item:hover {
+    background-color: #007bff;
+    scale: 1.1;
+}
+
+.nav-item p {
+    font-family: 'Righteous', sans-serif;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    transition: 0.3s ease-in-out;
+}
+
+.nav-item .nav-main-item {
+    font-size: 16px;
+    font-weight: bold;
+    transform: translateY(10px);
+}
+
+.nav-item .nav-sub-item {
+    font-size: 10px;
+    opacity: 0;
+    transform: translateY(15px);
+    transition: 0.3s ease-in-out;
+}
+
+.nav-item:hover .nav-main-item {
+    transform: translateY(-5px);
+}
+
+.nav-item:hover .nav-sub-item {
+    opacity: 1;
+    transform: translateY(-5px);
+}
+
+#last-item {
+    width: 155px;
+}
+
+/* JOB LISTING SECTION */
+h1 {
+    animation: fadeIn 0.5s ease-in-out;
+    text-align: center;
+    margin-bottom: 20px;
+    font: bold 2.5em 'mono', sans-serif;
+    color: #007bff;
+}
+
+.job-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+    padding: 20px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* ANIMATION EFFECTS */
+@keyframes slideInRight {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideInLeft {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+/* INDIVIDUAL JOB LISTING STYLE */
+.job-listing {
+    flex: 0 0 calc(32% - 20px);
+    margin: 19px;
+    padding: 15px;
+    border: 1px solid #444;
+    border-radius: 10px;
+    background-color: #2a2a2a;
+    transition: transform 0.3s, box-shadow 0.3s;
+    display: flex;
+    flex-direction: column;
+    height: auto;
+    box-sizing: border-box;
+    animation: slideInRight 0.5s ease-in-out;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.job-listing:nth-child(even) {
+    animation: slideInLeft 0.5s ease-in-out;
+}
+
+.job-listing:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+}
+
+.job-listing img {
+    max-width: 100%;
+    width: 450px;
+    height: 300px;
+    border-radius: 10px;
+    margin-bottom: 15px;
+    transition: transform 0.3s;
+}
+
+.job-listing aside {
+    /* width: 25%; */
+    float: right;
+    border: 2px solid #555555;
+    border-radius: 10px;
+    margin: 10px;
+    padding: 15px;
+}
+
+
+.job-listing h2 {
+    font-size: 1.5em;
+    color: #ffffff;
+    margin: 5px 0;
+}
+
+.job-listing h3 {
+    font-size: 1.2em;
+    color: #ffffff;
+    margin: 5px 0;
+}
+
+.job-listing h4 {
+    font-size: 1.0em;
+    color: #ffffff;
+    margin: 5px 0;
+}
+
+.requirement {
+    margin-left: 10px;
+}
+
+.job-listing p {
+    margin: 0;
+    font-size: 1em;
+    color: #d0d0d0;
+    margin-bottom: 5px;
+    padding-left: 20px;
+}
+
+.job-description {
+    height: 90px;
+}
+
+.job-listing ol, .job-listing ul {
+    color: #d0d0d0;
+    margin: 5px 0;
+    height: 70px;
+    overflow-y: auto;
+}
+
+.salary {
+    color: #04AA6D;
+}
+
+.apply-button {
+    display: inline-block;
+    background-color: #007bff;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+.apply-button:hover {
+    background-color: #0056b3;
+}
+
+
+/* DIVIDER LINE */
+.divider-container {
+    display: flex;
+    align-items: center;
+    height: 2px;
+    margin: 40px 0;
+}
+
+.hr {
+    flex-grow: 1;
+    height: 2px;
+    background-color: #565656;
+    opacity: 0;
+    animation: fadeIn 1.5s forwards;
+}
+
+/* TABLE STYLING */
+table {
+    border-collapse: collapse;
+    border-radius: 10px;
+    margin: 20px 0;
+    overflow: hidden;
+    width: 100%;
+}
+
+th, td {
+    color: white;
+    padding: 10px;
+    text-align: center;
+}
+
+th {
+    background-color: #007bff;
+}
+
+td {
+    border: 1px solid #555;
+}
+
+/* FOOTER SECTION */
+.footer {
+    position: relative;
+    height: 70px;
+    border-top: 2px solid #333333;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+    background-color: #202020;
+    padding-left: 50px;
+    padding-right: 50px;
+}
+
+.copyright {
+    color: #878787;
+    font-size: 14px;
+    margin-top: 15px;
+    text-align: center;
+}
+
+.link {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
+.footer-menu {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.footer-menu ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+.footer-menu li {
+    margin-left: 20px;
+}
+
+.footer-menu li a {
+    color: #878787;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.footer-menu li a:hover {
+    color: #ff5e14;
+    text-decoration: underline;
+}
+
+/* ANIMATIONS */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes pulse {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
