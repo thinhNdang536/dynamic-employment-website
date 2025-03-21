@@ -1,16 +1,71 @@
 <?php
     require_once 'settings.php';
+    /**
+        * EOI Management Handler.
+
+        * Handles actions related to EOIs (Expressions of Interest), including filtering, 
+        * showing more or fewer EOIs, deleting EOIs, updating EOI status, and resetting filters.
+
+        * Author: Dang Quang Thinh
+        * Date: 20/02/2025
+
+        * This script processes form submissions that perform actions such as:
+        * - Show more or less EOIs.
+        * - Filter EOIs by job reference or applicant name.
+        * - Delete EOIs based on job reference.
+        * - Update the status of an EOI.
+        * - Reset filters and EOI data.
+    **/
+
+    // just 4 debugging:vvv
+    // error_reporting(E_ALL);
+    // ini_set('display_errors', 1);
+
+    // OOP for better look;))
+    // docstring written by AI
+
+
+    // Start the session if it hasn't been started yet, it maybe a little bit unnecessary:))
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+
 
     class EOIManager {
+        /**
+            * Class EOIManager
+
+            * This class manages the Expressions of Interest (EOI) in the system.
+            * It provides methods to retrieve, filter, delete, and update EOIs.
+
+            * Methods:
+            * - getAllEOIs(int $limit, int $offset): array
+            * - getEOIsByJobRef(string $jobRef): array
+            * - getEOIsByName(string $firstName, string $lastName): array
+            * - getTotalEOIs(): int
+            * - deleteEOIsByJobRef(string $jobRef): bool
+            * - updateEOIStatus(int $eoiNum, string $newStatus): bool
+            * - isValidStatus(string $status): bool
+
+            * Properties:
+            * - private $conn: Database connection
+            * - private const VALID_STATUSES: Valid status values for EOIs
+        **/
         private $conn;
-        private $limits;
+        private const VALID_STATUSES = ['new', 'current', 'final'];
 
         public function __construct() {
             $db = new Database();
             $this->conn = $db->getConnection();
         }
 
-        // Get EOIs with pagination (limit and offset)
+        /**
+            * Get EOIs with pagination (limit and offset)
+
+            * @param int $limit
+            * @param int $offset
+            * @return array
+        **/
         public function getAllEOIs($limit, $offset): array {
             $query = "SELECT * FROM eoi ORDER BY submitTime DESC LIMIT ? OFFSET ?";
             $stmt = $this->conn->prepare($query);
@@ -20,7 +75,13 @@
             return $result->fetch_all(MYSQLI_ASSOC);
         }
 
-        public function getEOIsByJobRef($jobRef): array {
+        /**
+              * Get EOIs by Job Reference
+
+              * @param string $jobRef
+              * @return array
+        **/
+        public function getEOIsByJobRef(string $jobRef): array {
             $query = "SELECT * FROM eoi WHERE jobRef = ? ORDER BY submitTime DESC";
             $stmt = $this->conn->prepare($query);
             $stmt->bind_param("s", $jobRef);
@@ -29,8 +90,15 @@
             return $result->fetch_all(MYSQLI_ASSOC);
         }
 
-        public function getEOIsByName($firstName, $lastName): array {
-            $query = "SELECT * FROM eoi WHERE firstName = ? OR lastName = ?";
+        /**
+              * Get EOIs by Applicant Name
+
+              * @param string $firstName
+              * @param string $lastName
+              * @return array
+        **/
+        public function getEOIsByName(string $firstName, string $lastName): array {
+            $query = "SELECT * FROM eoi WHERE firstName = ? OR lastName = ?"; // OR for only one firstname, lastname or for both:vv
             $stmt = $this->conn->prepare($query);
             $stmt->bind_param("ss", $firstName, $lastName);
             $stmt->execute();
@@ -38,24 +106,46 @@
             return $result->fetch_all(MYSQLI_ASSOC);
         }
 
-        // Get total number of EOIs
+        /**
+              * Get total number of EOIs
+
+              * @return int
+        **/
         public function getTotalEOIs(): int {
             $result = $this->conn->query("SELECT COUNT(*) as total FROM eoi");
             return (int)$result->fetch_assoc()['total'];
         }
 
-        public function deleteEOIsByJobRef($jobRef): bool {
+        /**
+              * Delete EOIs by Job Reference
+
+              * @param string $jobRef
+              * @return bool
+        **/
+        public function deleteEOIsByJobRef(string $jobRef): bool {
             $query = "DELETE FROM eoi WHERE jobRef = ?";
             $stmt = $this->conn->prepare($query);
             $stmt->bind_param("s", $jobRef);
             return $stmt->execute();
         }
 
-        public function updateEOIStatus($eoiNum, $newStatus): bool {
-            $query = "UPDATE eoi SET status = ? WHERE EOInum = ?";
+        /**
+              * Update EOI Status
+
+              * @param int $eoiNum
+              * @param string $newStatus
+              * @return bool
+        **/
+        public function updateEOIStatus(int $eoiNum, string $newStatus): bool {
+            $query = "UPDATE eoi SET status = ?, updateTime = CURRENT_TIMESTAMP WHERE EOINum = ?";
             $stmt = $this->conn->prepare($query);
             $stmt->bind_param("si", $newStatus, $eoiNum);
             return $stmt->execute();
+        }
+
+        // status validation method
+        public static function isValidStatus($status): bool {
+            return in_array(trim($status), self::VALID_STATUSES);
         }
 
         public function __destruct() {
@@ -63,52 +153,177 @@
         }
     }
 
-    // Start the session if it hasn't been started yet, it may be a little bit unnecessary:))
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
+
+    class EOIManagement {
+        /**
+            * Show more EOIs by increasing the limit.
+            * Updates the session limit for the number of EOIs displayed.
+            * If the new limit exceeds the total number of EOIs, it sets the limit to the total.
+        *
+            * @param int $limit Current limit of EOIs displayed.
+            * @param int $totalEOIs Total number of EOIs available.
+            * @return void
+        **/
+        public static function showMore($limit, $totalEOIs) {
+            if ($limit + 5 <= $totalEOIs) {
+                $_SESSION['limit'] = $limit + 5;
+            } else {
+                $_SESSION['limit'] = $totalEOIs;
+            }
+            header("Location: " . $_SERVER['PHP_SELF']);
+            exit;
+        }
+    
+        /**
+            * Show less EOIs by decreasing the limit.
+            * Updates the session limit for the number of EOIs displayed.
+            * If the new limit is less than or equal to zero, it sets the limit to 5.
+        *
+            * @param int $limit Current limit of EOIs displayed.
+            * @return void
+        **/
+        public static function showLess($limit) {
+            if ($limit - 5 > 0) {
+                $_SESSION['limit'] = $limit - 5;
+            } else {
+                $_SESSION['limit'] = 5;
+            }
+            header("Location: " . $_SERVER['PHP_SELF']);
+            exit;
+        }
+    
+        /**
+            * Reset the session data for a new update.
+            * Clears the filter, results, and total EOIs from the session,
+            * effectively resetting the view to show all EOIs.
+        *
+            * @return void
+        **/
+        public static function newUpdate() {
+            unset($_SESSION['filter']);
+            unset($_SESSION['results']);
+            unset($_SESSION['totalEOIs']);
+            header("Location: " . $_SERVER['PHP_SELF']);
+            exit;
+        }
+    
+        /**
+            * Filter EOIs by Job Reference.
+            * Gets EOIs based on the provided job reference and updates
+            * the session with the results and total count.
+        *
+            * @param EOIManager $manager Instance of EOIManager to interact with the database.
+            * @param string $jobRef Job reference to filter EOIs.
+            * @return void
+        **/
+        public static function filterByJobRef($manager, $jobRef) {
+            $jobRef = htmlspecialchars($jobRef);
+            $_SESSION['results'] = $manager->getEOIsByJobRef($jobRef);
+            $_SESSION['totalEOIs'] = count($_SESSION['results']);
+            header("Location: " . $_SERVER['PHP_SELF']);
+            exit;
+        }
+    
+        /**
+            * Filter EOIs by Applicant Name.
+            * Gets EOIs based on the provided first and last name
+            * and updates the session with the results and total count.
+        *
+            * @param EOIManager $manager Instance of EOIManager to interact with the database.
+            * @param string $firstName First name of the applicant.
+            * @param string $lastName Last name of the applicant.
+            * @return void
+        **/
+        public static function filterByName($manager, $firstName, $lastName) {
+            $firstName = htmlspecialchars($firstName);
+            $lastName = htmlspecialchars($lastName);
+            $_SESSION['results'] = $manager->getEOIsByName($firstName, $lastName);
+            $_SESSION['totalEOIs'] = count($_SESSION['results']);
+            header("Location: " . $_SERVER['PHP_SELF']);
+            exit;
+        }
+    
+        /**
+            * Delete EOIs by Job Reference.
+            * Deletes EOIs associated with the provided job reference
+            * and resets the session for a new update.
+        *
+            * @param EOIManager $manager Instance of EOIManager to interact with the database.
+            * @param string $jobRefToDelete Job reference to delete EOIs.
+            * @return void
+        **/
+        public static function deleteByJobRef($manager, $jobRefToDelete) {
+            $jobRefToDelete = htmlspecialchars($jobRefToDelete);
+            $manager->deleteEOIsByJobRef($jobRefToDelete);
+            self::newUpdate();
+        }
+    
+        /**
+            * Update the status of an EOI.
+            * Updates the status of an EOI identified by its number.
+            * It validates the new status before updating and handles errors accordingly.
+        *
+            * @param EOIManager $manager Instance of EOIManager to interact with the database.
+            * @param int $eoiNum EOI number to update.
+            * @param string $newStatus New status to set for the EOI.
+            * @return void
+        **/
+        public static function updateStatus($manager, $eoiNum, $newStatus) {
+            if (!empty($eoiNum) && !empty($newStatus)) {
+                if (EOIManager::isValidStatus(htmlspecialchars($newStatus))) {
+                    $manager->updateEOIStatus((int)$eoiNum, $newStatus);
+                    self::newUpdate(); // self is EOIManagement class:vv
+                } else {
+                    $_SESSION['error'] = "Invalid status value";
+                }
+            } else {
+                $_SESSION['error'] = "Missing required fields";
+            }
+            header("Location: " . $_SERVER['PHP_SELF']);
+            exit;
+        }
     }
+
 
     $manager = new EOIManager();
     $limit = isset($_SESSION['limit']) ? $_SESSION['limit'] : 10;
     $offset = 0;
+    
+    $results = isset($_SESSION['results']) ? $_SESSION['results'] : $manager->getAllEOIs($limit, $offset);
+    $totalEOIs = isset($_SESSION['totalEOIs']) ? $_SESSION['totalEOIs'] : $manager->getTotalEOIs();
 
-    $totalEOIs = $manager->getTotalEOIs();
-    $results = $manager->getAllEOIs($limit, $offset);
-
+    // Handle form submissions based on the action specified
     if (isset($_POST['action'])) {
         switch ($_POST['action']) {
             case 'showMore':
-                if ($limit + 5 <= $totalEOIs) {
-                    $_SESSION['limit'] = $limit + 5;
-                } else {
-                    $_SESSION['limit'] = $totalEOIs;
-                }
-                header("Location: " . $_SERVER['PHP_SELF']);
-                exit;
-
+                EOIManagement::showMore($limit, $totalEOIs);
+                break;
+    
             case 'showLess':
-                if ($limit - 5 > 0) {
-                    $_SESSION['limit'] = $limit - 5;
-                } else {
-                    $_SESSION['limit'] = 5;
-                }
-                header("Location: " . $_SERVER['PHP_SELF']);
-                exit;
-
+                EOIManagement::showLess($limit);
+                break;
+    
             case 'newUpdate':
-                header("Location: " . $_SERVER['PHP_SELF']);
-                exit;
-            
+                EOIManagement::newUpdate();
+                break;
+    
             case 'filterByJobRef':
-                $jobRef = $_POST['jobRef'];
-                $results = $manager->getEOIsByJobRef($jobRef);
-                $totalEOIs = count($results);
-
+                $_SESSION['filter'] = "Job Reference: " . $_POST['jobRef'];
+                EOIManagement::filterByJobRef($manager, $_POST['jobRef']);
+                break;
+    
             case 'filterByName':
-                $firstName = $_POST['firstName'];
-                $lastName = $_POST['lastName'];
-                $results = $manager->getEOIsByName($firstName, $lastName);
-                $totalEOIs = count($results);
+                $_SESSION['filter'] = "Name: " . $_POST['firstName'] . ' ' . $_POST['lastName'];
+                EOIManagement::filterByName($manager, $_POST['firstName'], $_POST['lastName']);
+                break;
+    
+            case 'deleteByJobRef':
+                EOIManagement::deleteByJobRef($manager, $_POST['jobRefToDelete']);
+                break;
+    
+            case 'updateStatus':
+                EOIManagement::updateStatus($manager, $_POST['eoiNum'], $_POST['newStatus']);
+                break;
         }
     }
 ?>
@@ -150,13 +365,13 @@
                 <?php if (!empty($results)): ?>
                     <?php foreach ($results as $row): ?>
                         <tr>
-                            <td><?php echo htmlspecialchars($row['EOInum']); ?></td>
-                            <td><?php echo htmlspecialchars($row['jobRef']); ?></td>
-                            <td><?php echo htmlspecialchars($row['firstName'] . ' ' . $row['lastName']); ?></td>
-                            <td><?php echo htmlspecialchars($row['email']); ?></td>
-                            <td><?php echo htmlspecialchars($row['phoneNum']); ?></td>
-                            <td><?php echo htmlspecialchars($row['status']); ?></td>
-                            <td><?php echo htmlspecialchars($row['submitTime']); ?></td>
+                        <td><?php echo htmlspecialchars($row['EOInum']); ?></td> <!-- EOI Number -->
+                        <td><?php echo htmlspecialchars($row['jobRef']); ?></td> <!-- Job Reference -->
+                        <td><?php echo htmlspecialchars($row['firstName'] . ' ' . $row['lastName']); ?></td> <!-- Applicant Name -->
+                        <td><?php echo htmlspecialchars($row['email']); ?></td> <!-- Email -->
+                        <td><?php echo htmlspecialchars($row['phoneNum']); ?></td> <!-- Phone Number -->
+                        <td><?php echo htmlspecialchars($row['status']); ?></td> <!-- Status -->
+                        <td><?php echo htmlspecialchars($row['submitTime']); ?></td> <!-- Submit Time -->
                         </tr>
                     <?php endforeach; ?>
                 <?php else: ?>
@@ -167,17 +382,14 @@
                 </tbody>
             </table>
 
-            <?php if (isset($_POST['action']) && ($_POST['action'] === 'filterByJobRef' || $_POST['action'] === 'filterByApplicant')): ?>
+             
+            <!-- Filter criteria -->
+            <?php if (isset($_SESSION['filter'])): ?>
                 <div class="filter-message">
-                    <p>Showing results for: 
-                        <?php 
-                            if (!empty($_POST['jobRef'])) {
-                                echo "Job Reference: " . htmlspecialchars($_POST['jobRef']);
-                            }
-                            if (!empty($_POST['firstName']) || !empty($_POST['lastName'])) {
-                                echo "Applicant: " . htmlspecialchars($_POST['firstName'] . ' ' . $_POST['lastName']);
-                            }
-                        ?>
+                    <p>Showing results for:
+                    <?php 
+                        echo $_SESSION['filter'];
+                    ?>
                     </p>
                 </div>
             <?php endif; ?>
@@ -204,7 +416,7 @@
             <!-- Filter by Job Reference -->
             <form method="post" class="filter-jobref">
                 <input type="text" name="jobRef" placeholder="Enter Job Reference" required>
-                <button type="submit" name="action" value="filterByJobRef">Filter by Job Ref</button>
+                <button type="submit" name="action" value="filterByJobRef">Filter by Job Reference Number</button>
             </form>
 
             <!-- Filter by Name -->
@@ -221,10 +433,23 @@
             </form>
 
             <!-- Update Status -->
-            <form method="post" class="update-status">
-                <input type="text" name="eoiNum" placeholder="EOI Number" required>
-                <input type="text" name="newStatus" placeholder="New Status" required>
-                <button type="submit" name="action" value="updateStatus">Update Status</button>
+            <form method="post" class="update-status" onsubmit="return confirm('Are you sure you want to update this EOI status?');">
+                <div class="form-group">
+                    <label for="eoiNum">EOI Number:</label>
+                    <input type="number" id="eoiNum" name="eoiNum" required min="1">
+                </div>
+                <div class="form-group">
+                    <label for="newStatus">New Status:</label>
+                    <select id="newStatus" name="newStatus" required>
+                        <option value="">Select Status</option>
+                        <option value="new">New</option>
+                        <option value="current">Current</option>
+                        <option value="final">Final</option>
+                    </select>
+                </div>
+                <button type="submit" name="action" value="updateStatus">
+                    <i class="fas fa-sync-alt"></i> Update Status
+                </button>
             </form>
         </div>
     </div>
