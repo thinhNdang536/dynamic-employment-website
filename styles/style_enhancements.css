@@ -1,0 +1,268 @@
+/* 
+    Author: Dang Quang Thinh (SWS01218) and Nguyen Ho Minh Phuong
+    Purpose: CSS file for styling the website with common styles.
+*/
+
+
+@import url('https://fonts.googleapis.com/css2?family=Jaro:opsz@6..72&family=Ramabhadra&display=swap');
+@import url('https://fonts.googleapis.com/css?family=Righteous&display=swap');
+
+body {
+    background-color: #1a1a1a; /* Darker background for better contrast */
+    color: #f0f0f0; /* Light text color for readability */
+    display: flex;
+    flex-direction: column;
+    font-family: 'Arial', sans-serif; /* Changed font for better readability */
+    margin: 0;
+}
+
+/* HEADER SECTION */
+.header {
+    align-items: center;
+    background-color: #242424;
+    display: flex;
+    flex-direction: row;
+    height: 75px;
+    justify-content: space-between;
+    padding: 5px 30px;
+}
+
+.header-logo {
+    align-items: center;
+    color: white;
+    display: flex;
+    font-family: 'Ramabhadra', sans-serif;
+    font-size: 38px;
+}
+
+.header-logo img {
+    height: 60px;
+    margin: 0 5px;
+    object-fit: cover;
+    width: 38px;
+}
+
+/* NAVBAR SECTION */
+.nav-bar {
+    background-color: #242424;
+    display: flex;
+    gap: 10px;
+}
+
+.nav-item {
+    align-items: center;
+    border-radius: 10px;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    text-decoration: none;
+    transition: 0.3s ease-in-out;
+    width: 115px;
+}
+
+.nav-item:hover {
+    background-color: #007bff;
+    scale: 1.1;
+}
+
+.nav-item p {
+    font-family: 'Righteous', sans-serif;
+    margin: 0;
+    padding: 0;
+    text-align: center;
+    transition: 0.3s ease-in-out;
+}
+
+.nav-item .nav-main-item {
+    font-size: 16px;
+    font-weight: bold;
+    transform: translateY(10px);
+}
+
+.nav-item .nav-sub-item {
+    font-size: 10px;
+    opacity: 0;
+    transform: translateY(15px);
+    transition: 0.3s ease-in-out;
+}
+
+.nav-item:hover .nav-main-item {
+    transform: translateY(-5px);
+}
+
+.nav-item:hover .nav-sub-item {
+    opacity: 1;
+    transform: translateY(-5px);
+}
+
+#last-item {
+    width: 155px;
+}
+
+/* CONTENT SECTION */
+.enhancements-section {
+    background-color: #2a2a2a; /* Dark background for the section */
+    border-radius: 10px; /* Rounded corners */
+    padding: 20px; /* Padding for spacing */
+    margin: 90px 90px 50px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* Shadow for depth */
+}
+
+.enhancements-title {
+    color: #83d84e; /* Bright title color */
+    font-size: 2em; /* Title size */
+    text-align: center; /* Centered title */
+    margin-bottom: 15px; /* Space below title */
+}
+
+.enhancements-description {
+    color: #cccccc; /* Lighter text color */
+    font-size: 1.1em; /* Description size */
+    text-align: center; /* Centered description */
+    margin-bottom: 20px; /* Space below description */
+}
+
+.enhancements-list {
+    list-style-type: none; /* Remove default list styling */
+    padding: 0; /* Remove padding */
+    margin: 0; /* Remove margin */
+    text-align: left; /* Left align the list */
+    color: #ffffff; /* White text color */
+}
+
+.enhancements-list li {
+    margin: 10px 0; /* Space between list items */
+    padding-left: 20px; /* Indent list items */
+    position: relative; /* Position for pseudo-element */
+}
+
+.enhancements-list li::before {
+    content: '✔'; /* Checkmark before each item */
+    color: #83d84e; /* Color for the checkmark */
+    position: absolute; /* Positioning */
+    left: 0; /* Align to the left */
+}
+
+#ptitle {
+    color: #83d84e; /* Bright title color */
+    font-size: 2.5em; /* Increased title size */
+    font-weight: bold;
+    text-align: center;
+    margin: 30px 0; /* Increased margin */
+}
+
+.boxdesign {
+    display: flex;
+    gap: 30px; /* Increased gap */
+    justify-content: center;
+    flex-wrap: wrap; /* Allow wrapping */
+}
+
+.box {
+    background-color: #444444; /* Darker box color */
+    border-radius: 12px; /* More rounded corners */
+    display: flex;
+    flex-direction: column;
+    height: 350px;
+    justify-content: flex-start;
+    margin: 15px 15px 80px;
+    padding: 20px; /* Increased padding */
+    text-align: center;
+    transition: transform 0.3s, box-shadow 0.3s; /* Smooth transition */
+    width: 250px; /* Increased width */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3); /* Added shadow */
+}
+
+.box:hover {
+    transform: translateY(-5px); /* Lift effect on hover */
+}
+
+.boxheader {
+    margin-bottom: 0; /* Remove bottom margin from the box header */
+}
+
+.box-info {
+    margin-top: 0;
+    color: #cccccc;
+    font-size: 1rem;
+    text-align: left;
+}
+
+li a {
+    color: #ffffff; /* White link color */
+}
+
+/* FOOTER SECTION */
+
+.footer {
+    position: relative;
+    height: 80px; /* Increased height */
+    border-top: 2px solid #333333;
+}
+
+.footer-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 100%;
+    background-color: #2c2c2c; /* Slightly lighter footer */
+    padding: 0 50px; /* Increased padding */
+}
+
+.copyright {
+    color: #aaaaaa; /* Lighter copyright text */
+    font-size: 14px;
+}
+
+.link {
+    color: #007bff; /* Bright link color */
+    text-decoration: none;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
+.footer-menu {
+    display: flex;
+}
+
+.footer-menu ul {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+}
+
+.footer-menu li {
+    margin-left: 25px; /* Increased margin */
+}
+
+.footer-menu li a {
+    color: #aaaaaa; /* Lighter link color */
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.footer-menu li a:hover {
+    color: #ff5e14; /* Bright hover color */
+    text-decoration: underline;
+}
+
+/* LOAD ANIMATION */
+
+.container, .footer {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
