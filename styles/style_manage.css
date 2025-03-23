@@ -59,9 +59,8 @@ h1 {
 }
 
 .tableHeading-container h2 {
-    margin: 0;
-    flex: 0 0 auto;
-    color: var(--highlight-color);
+    color: #76ff03;
+    margin-bottom: 1rem;
     font-size: 1.5rem;
 }
 

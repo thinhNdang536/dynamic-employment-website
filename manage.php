@@ -1,364 +1,116 @@
 <?php
-session_start();
-require_once 'settings.php';
+    require_once 'settings.php';
 
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
-}
-
-// Refresh user role
-if (!refreshUserRole($_SESSION['user_id'])) {
-    session_destroy();
-    header("Location: login.php?error=invalid_user");
-    exit();
-}
-
-// Check if user is admin
-if (strtolower($_SESSION['role']) !== 'admin') {
-    header("Location: login.php?manage=error");
-    exit();
-}
-
-/**
-    * EOI Management Handler.
-
-    * Handles actions related to EOIs (Expressions of Interest), including filtering, 
-    * showing more or fewer EOIs, deleting EOIs, updating EOI status, and resetting filters.
-
-    * Author: Dang Quang Thinh
-    * Date: 20/02/2025
-
-    * This script processes form submissions that perform actions such as:
-    * - Show more or less EOIs.
-    * - Filter EOIs by job reference or applicant name.
-    * - Delete EOIs based on job reference.
-    * - Update the status of an EOI.
-    * - Reset filters and EOI data.
-**/
-
-// just 4 debugging:vvv
-// error_reporting(E_ALL);
-// ini_set('display_errors', 1);
-
-// OOP for better look;))
-// docstring written by AI
-
-
-// Start the session if it hasn't been started yet, it maybe a little bit unnecessary:))
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
-
-
-class EOIManager {
-    /**
-        * Class EOIManager
-
-        * This class manages the Expressions of Interest (EOI) in the system.
-        * It provides methods to retrieve, filter, delete, and update EOIs.
-
-        * Methods:
-        * - getAllEOIs(int $limit, int $offset): array
-        * - getEOIsByJobRef(string $jobRef): array
-        * - getEOIsByName(string $firstName, string $lastName): array
-        * - getTotalEOIs(): int
-        * - deleteEOIsByJobRef(string $jobRef): bool
-        * - updateEOIStatus(int $eoiNum, string $newStatus): bool
-        * - isValidStatus(string $status): bool
-
-        * Properties:
-        * - private $conn: Database connection
-        * - private const VALID_STATUSES: Valid status values for EOIs
-    **/
-    private $conn;
-    private const VALID_STATUSES = ['new', 'current', 'final'];
+    class EOIManager {
+        private $conn;
+        private $limits;
 
     public function __construct() {
         $db = new Database();
         $this->conn = $db->getConnection();
     }
 
-    /**
-        * Get EOIs with pagination (limit and offset)
+        // Get EOIs with pagination (limit and offset)
+        public function getAllEOIs($limit, $offset): array {
+            $query = "SELECT * FROM eoi ORDER BY submitTime DESC LIMIT ? OFFSET ?";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bind_param("ii", $limit, $offset);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            return $result->fetch_all(MYSQLI_ASSOC);
+        }
 
-        * @param int $limit
-        * @param int $offset
-        * @return array
-    **/
-    public function getAllEOIs($limit, $offset, $sortField = null): array {
-        $orderBy = $sortField ? "ORDER BY $sortField" : "ORDER BY submitTime DESC";
-        $query = "SELECT * FROM eoi $orderBy LIMIT ? OFFSET ?";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bind_param("ii", $limit, $offset);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        return $result->fetch_all(MYSQLI_ASSOC);
-    }
+        public function getEOIsByJobRef($jobRef): array {
+            $query = "SELECT * FROM eoi WHERE jobRef = ? ORDER BY submitTime DESC";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bind_param("s", $jobRef);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            return $result->fetch_all(MYSQLI_ASSOC);
+        }
 
-    /**
-          * Get EOIs by Job Reference
+        public function getEOIsByName($firstName, $lastName): array {
+            $query = "SELECT * FROM eoi WHERE firstName = ? OR lastName = ?";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bind_param("ss", $firstName, $lastName);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            return $result->fetch_all(MYSQLI_ASSOC);
+        }
 
-          * @param string $jobRef
-          * @return array
-    **/
-    public function getEOIsByJobRef(string $jobRef): array {
-        $query = "SELECT * FROM eoi WHERE jobRef = ? ORDER BY submitTime DESC";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bind_param("s", $jobRef);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        return $result->fetch_all(MYSQLI_ASSOC);
-    }
+        // Get total number of EOIs
+        public function getTotalEOIs(): int {
+            $result = $this->conn->query("SELECT COUNT(*) as total FROM eoi");
+            return (int)$result->fetch_assoc()['total'];
+        }
 
-    /**
-          * Get EOIs by Applicant Name
+        public function deleteEOIsByJobRef($jobRef): bool {
+            $query = "DELETE FROM eoi WHERE jobRef = ?";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bind_param("s", $jobRef);
+            return $stmt->execute();
+        }
 
-          * @param string $firstName
-          * @param string $lastName
-          * @return array
-    **/
-    public function getEOIsByName(string $firstName, string $lastName): array {
-        $query = "SELECT * FROM eoi WHERE firstName = ? OR lastName = ?"; // OR for only one firstname, lastname or for both:vv
-        $stmt = $this->conn->prepare($query);
-        $stmt->bind_param("ss", $firstName, $lastName);
-        $stmt->execute();
-        $result = $stmt->get_result();
-        return $result->fetch_all(MYSQLI_ASSOC);
-    }
-
-    /**
-          * Get total number of EOIs
-
-          * @return int
-    **/
-    public function getTotalEOIs(): int {
-        $result = $this->conn->query("SELECT COUNT(*) as total FROM eoi");
-        return (int)$result->fetch_assoc()['total'];
-    }
-
-    /**
-          * Delete EOIs by Job Reference
-
-          * @param string $jobRef
-          * @return bool
-    **/
-    public function deleteEOIsByJobRef(string $jobRef): bool {
-        $query = "DELETE FROM eoi WHERE jobRef = ?";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bind_param("s", $jobRef);
-        return $stmt->execute();
-    }
-
-    /**
-          * Update EOI Status
-
-          * @param int $eoiNum
-          * @param string $newStatus
-          * @return bool
-    **/
-    public function updateEOIStatus(int $eoiNum, string $newStatus): bool {
-        $query = "UPDATE eoi SET status = ?, updateTime = CURRENT_TIMESTAMP WHERE EOINum = ?";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bind_param("si", $newStatus, $eoiNum);
-        return $stmt->execute();
-    }
-
-    // status validation method
-    public static function isValidStatus($status): bool {
-        return in_array(trim($status), self::VALID_STATUSES);
-    }
+        public function updateEOIStatus($eoiNum, $newStatus): bool {
+            $query = "UPDATE eoi SET status = ? WHERE EOInum = ?";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bind_param("si", $newStatus, $eoiNum);
+            return $stmt->execute();
+        }
 
     public function __destruct() {
         $this->conn->close();
     }
 }
 
+    // Start the session if it hasn't been started yet, it may be a little bit unnecessary:))
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
 
-class EOIManagement {
-    /**
-        * Show more EOIs by increasing the limit.
-        * Updates the session limit for the number of EOIs displayed.
-        * If the new limit exceeds the total number of EOIs, it sets the limit to the total.
-    *
-        * @param int $limit Current limit of EOIs displayed.
-        * @param int $totalEOIs Total number of EOIs available.
-        * @return void
-    **/
-    public static function showMore($limit, $totalEOIs) {
-        if ($limit + 5 <= $totalEOIs) {
-            $_SESSION['limit'] = $limit + 5;
-        } else {
-            $_SESSION['limit'] = $totalEOIs;
+    $manager = new EOIManager();
+    $limit = isset($_SESSION['limit']) ? $_SESSION['limit'] : 10;
+    $offset = 0;
+
+    $totalEOIs = $manager->getTotalEOIs();
+    $results = $manager->getAllEOIs($limit, $offset);
+
+    if (isset($_POST['action'])) {
+        switch ($_POST['action']) {
+            case 'showMore':
+                if ($limit + 5 <= $totalEOIs) {
+                    $_SESSION['limit'] = $limit + 5;
+                } else {
+                    $_SESSION['limit'] = $totalEOIs;
+                }
+                header("Location: " . $_SERVER['PHP_SELF']);
+                exit;
+
+            case 'showLess':
+                if ($limit - 5 > 0) {
+                    $_SESSION['limit'] = $limit - 5;
+                } else {
+                    $_SESSION['limit'] = 5;
+                }
+                header("Location: " . $_SERVER['PHP_SELF']);
+                exit;
+
+            case 'newUpdate':
+                header("Location: " . $_SERVER['PHP_SELF']);
+                exit;
+            
+            case 'filterByJobRef':
+                $jobRef = $_POST['jobRef'];
+                $results = $manager->getEOIsByJobRef($jobRef);
+                $totalEOIs = count($results);
+
+            case 'filterByName':
+                $firstName = $_POST['firstName'];
+                $lastName = $_POST['lastName'];
+                $results = $manager->getEOIsByName($firstName, $lastName);
+                $totalEOIs = count($results);
         }
-        header("Location: " . $_SERVER['PHP_SELF']);
-        exit;
     }
-
-    /**
-        * Show less EOIs by decreasing the limit.
-        * Updates the session limit for the number of EOIs displayed.
-        * If the new limit is less than or equal to zero, it sets the limit to 5.
-    *
-        * @param int $limit Current limit of EOIs displayed.
-        * @return void
-    **/
-    public static function showLess($limit) {
-        if ($limit - 5 > 0) {
-            $_SESSION['limit'] = $limit - 5;
-        } else {
-            $_SESSION['limit'] = 5;
-        }
-        header("Location: " . $_SERVER['PHP_SELF']);
-        exit;
-    }
-
-    /**
-        * Reset the session data for a new update.
-        * Clears the filter, results, and total EOIs from the session,
-        * effectively resetting the view to show all EOIs.
-    *
-        * @return void
-    **/
-    public static function newUpdate() {
-        unset($_SESSION['filter']);
-        unset($_SESSION['results']);
-        unset($_SESSION['totalEOIs']);
-        header("Location: " . $_SERVER['PHP_SELF']);
-        exit;
-    }
-
-    /**
-        * Filter EOIs by Job Reference.
-        * Gets EOIs based on the provided job reference and updates
-        * the session with the results and total count.
-    *
-        * @param EOIManager $manager Instance of EOIManager to interact with the database.
-        * @param string $jobRef Job reference to filter EOIs.
-        * @return void
-    **/
-    public static function filterByJobRef($manager, $jobRef) {
-        $jobRef = htmlspecialchars($jobRef);
-        $_SESSION['results'] = $manager->getEOIsByJobRef($jobRef);
-        $_SESSION['totalEOIs'] = count($_SESSION['results']);
-        header("Location: " . $_SERVER['PHP_SELF']);
-        exit;
-    }
-
-    /**
-        * Filter EOIs by Applicant Name.
-        * Gets EOIs based on the provided first and last name
-        * and updates the session with the results and total count.
-    *
-        * @param EOIManager $manager Instance of EOIManager to interact with the database.
-        * @param string $firstName First name of the applicant.
-        * @param string $lastName Last name of the applicant.
-        * @return void
-    **/
-    public static function filterByName($manager, $firstName, $lastName) {
-        $firstName = htmlspecialchars($firstName);
-        $lastName = htmlspecialchars($lastName);
-        $_SESSION['results'] = $manager->getEOIsByName($firstName, $lastName);
-        $_SESSION['totalEOIs'] = count($_SESSION['results']);
-        header("Location: " . $_SERVER['PHP_SELF']);
-        exit;
-    }
-
-    /**
-        * Delete EOIs by Job Reference.
-        * Deletes EOIs associated with the provided job reference
-        * and resets the session for a new update.
-    *
-        * @param EOIManager $manager Instance of EOIManager to interact with the database.
-        * @param string $jobRefToDelete Job reference to delete EOIs.
-        * @return void
-    **/
-    public static function deleteByJobRef($manager, $jobRefToDelete) {
-        $jobRefToDelete = htmlspecialchars($jobRefToDelete);
-        $manager->deleteEOIsByJobRef($jobRefToDelete);
-        self::newUpdate();
-    }
-
-    /**
-        * Update the status of an EOI.
-        * Updates the status of an EOI identified by its number.
-        * It validates the new status before updating and handles errors accordingly.
-    *
-        * @param EOIManager $manager Instance of EOIManager to interact with the database.
-        * @param int $eoiNum EOI number to update.
-        * @param string $newStatus New status to set for the EOI.
-        * @return void
-    **/
-    public static function updateStatus($manager, $eoiNum, $newStatus) {
-        if (!empty($eoiNum) && !empty($newStatus)) {
-            if (EOIManager::isValidStatus(htmlspecialchars($newStatus))) {
-                $manager->updateEOIStatus((int)$eoiNum, $newStatus);
-                self::newUpdate(); // self is EOIManagement class:vv
-            } else {
-                $_SESSION['error'] = "Invalid status value";
-            }
-        } else {
-            $_SESSION['error'] = "Missing required fields";
-        }
-        header("Location: " . $_SERVER['PHP_SELF']);
-        exit;
-    }
-}
-
-
-$manager = new EOIManager();
-$limit = isset($_SESSION['limit']) ? $_SESSION['limit'] : 10;
-$offset = 0;
-
-$results = isset($_SESSION['results']) ? $_SESSION['results'] : 
-    $manager->getAllEOIs($limit, $offset, isset($_SESSION['sortField']) ? $_SESSION['sortField'] : null);
-$totalEOIs = isset($_SESSION['totalEOIs']) ? $_SESSION['totalEOIs'] : $manager->getTotalEOIs();
-
-// Handle form submissions based on the action specified
-if (isset($_POST['action'])) {
-    switch ($_POST['action']) {
-        case 'showMore':
-            EOIManagement::showMore($limit, $totalEOIs);
-            break;
-
-        case 'showLess':
-            EOIManagement::showLess($limit);
-            break;
-
-        case 'newUpdate':
-            EOIManagement::newUpdate();
-            break;
-
-        case 'filterByJobRef':
-            $_SESSION['filter'] = "Job Reference: " . $_POST['jobRef'];
-            EOIManagement::filterByJobRef($manager, $_POST['jobRef']);
-            break;
-
-        case 'filterByName':
-            $_SESSION['filter'] = "Name: " . $_POST['firstName'] . ' ' . $_POST['lastName'];
-            EOIManagement::filterByName($manager, $_POST['firstName'], $_POST['lastName']);
-            break;
-
-        case 'deleteByJobRef':
-            EOIManagement::deleteByJobRef($manager, $_POST['jobRefToDelete']);
-            break;
-
-        case 'updateStatus':
-            EOIManagement::updateStatus($manager, $_POST['eoiNum'], $_POST['newStatus']);
-            break;
-
-        case 'sort':
-            if (!empty($_POST['sortField'])) {
-                $_SESSION['sortField'] = $_POST['sortField'];
-            } else {
-                unset($_SESSION['sortField']);
-            }
-            header("Location: " . $_SERVER['PHP_SELF']);
-            exit;
-            break;
-    }
-}
 ?>
 
 <!DOCTYPE html>
