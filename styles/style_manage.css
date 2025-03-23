@@ -1,7 +1,24 @@
+:root {
+    --primary-bg-color: #121212;
+    --secondary-bg-color: #1e1e1e;
+    --tertiary-bg-color: #2e2e2e;
+    --highlight-color: #76aaff;
+    --highlight-hover-color: #6495ed;
+    --text-color: #e0e0e0;
+    --button-bg-color: #76aaff;
+    --button-bg-hover: #6495ed;
+    --button-text-color: #121212;
+    --border-color: #444;
+    --message-success-bg: rgba(40, 167, 69, 0.2);
+    --message-error-bg: rgba(220, 53, 69, 0.2);
+    --message-success-border: #28a745;
+    --message-error-border: #dc3545;
+}
+
 body {
     font-family: 'Arial', sans-serif;
-    background-color: #121212;
-    color: #e0e0e0;
+    background-color: var(--primary-bg-color);
+    color: var(--text-color);
     margin: 0;
     padding: 0;
 }
@@ -11,7 +28,7 @@ body {
     margin: 2rem auto;
     padding: 1.5rem;
     border-radius: 8px;
-    background: #1e1e1e;
+    background: var(--secondary-bg-color);
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.7);
 }
 
@@ -25,23 +42,75 @@ h1 {
 .query-section {
     margin-bottom: 2rem;
     padding: 1.5rem;
-    background: #2e2e2e;
+    background: var(--tertiary-bg-color);
     border-radius: 8px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
 }
 
 .tableHeading-container {
     display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    background: var(--tertiary-bg-color);
+    border-radius: 4px;
 }
 
 .tableHeading-container h2 {
-    color: #76ff03;
-    margin-bottom: 1rem;
+    margin: 0;
+    flex: 0 0 auto;
+    color: var(--highlight-color);
     font-size: 1.5rem;
 }
 
-.tableHeading-container form {
-    margin-left: auto;
+.sort-controls {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0 0 0 auto;
+}
+
+.sort-form {
+    margin: 0;
+}
+
+.sort-form select {
+    padding: 0.5rem;
+    border-radius: 4px;
+    background-color: #333;
+    color: #fff;
+    height: 40px;
+    border: 1px solid #555;
+    min-width: 150px;
+}
+
+.update-form {
+    margin: 0;
+    flex: 0 0 auto;
+    transform: translateY(3px);
+}
+
+.update-form button {
+    margin: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .tableHeading-container {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5rem;
+    }
+
+    .sort-controls {
+        margin: 0.5rem 0;
+    }
+
+    .sort-form select {
+        width: 100%;
+    }
 }
 
 input[type="text"],
@@ -50,17 +119,17 @@ select {
     width: calc(100% - 20px);
     padding: 10px;
     margin-top: 0.5rem;
-    border: 1px solid #444;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
-    background-color: #2e2e2e;
-    color: #e0e0e0;
+    background-color: var(--tertiary-bg-color);
+    color: var(--text-color);
     transition: border-color 0.3s;
 }
 
 input[type="text"]:focus,
 input[type="number"]:focus,
 select:focus {
-    border-color: #76ff03;
+    border-color: var(--highlight-color);
     outline: none;
 }
 
@@ -75,8 +144,8 @@ select:focus {
 
 button {
     padding: 10px 15px;
-    background-color: #76ff03;
-    color: #121212;
+    background-color: var(--button-bg-color);
+    color: var(--button-text-color);
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -89,7 +158,7 @@ button {
 }
 
 button:hover {
-    background-color: #64dd17;
+    background-color: var(--button-bg-hover);
     transform: translateY(-2px);
 }
 
@@ -106,8 +175,8 @@ button:active {
 
 .see-more-btn button {
     padding: 10px 20px;
-    background-color: #76ff03;
-    color: #121212;
+    background-color: var(--button-bg-color);
+    color: var(--button-text-color);
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -119,7 +188,7 @@ button:active {
 }
 
 .see-more-btn button:hover {
-    background-color: #64dd17;
+    background-color: var(--button-bg-hover);
     transform: translateY(-2px);
 }
 
@@ -136,17 +205,17 @@ button:active {
 .results-table th,
 .results-table td {
     padding: 0.75rem;
-    border: 1px solid #444;
+    border: 1px solid var(--border-color);
     text-align: left;
 }
 
 .results-table th {
-    background: #1e1e1e;
-    color: #76ff03;
+    background: var(--secondary-bg-color);
+    color: var(--highlight-color);
 }
 
 .results-table tr:nth-child(even) {
-    background: #2e2e2e;
+    background: var(--tertiary-bg-color);
 }
 
 .results-table tr:hover {
@@ -156,61 +225,16 @@ button:active {
 .filter-section {
     margin-top: 2rem;
     padding: 1.5rem;
-    background: #2e2e2e;
+    background: var(--tertiary-bg-color);
     border-radius: 8px;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .filter-section h2 {
-    color: #76ff03;
-    margin-bottom: 1rem;
-    font-size: 1.5rem;
-    text-align: center;
-}
-
-.filter-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-}
-
-.filter-section {
-    margin-top: 2rem;
-    padding: 1.5rem;
-    background: #2e2e2e;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
-    max-width: 800px; /* Set a maximum width */
-    margin-left: auto; /* Center the section */
-    margin-right: auto; /* Center the section */
-}
-
-.filter-section h2 {
-    color: #76ff03;
-    margin-bottom: 1rem;
-    font-size: 1.5rem;
-    text-align: center;
-}
-
-.filter-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-}
-
-.filter-section {
-    margin-top: 2rem;
-    padding: 1.5rem;
-    background: #2e2e2e;
-    border-radius: 8px;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
-    max-width: 1200px; /* Set the same max width as the management container */
-    margin-left: auto; /* Center the section */
-    margin-right: auto; /* Center the section */
-}
-
-.filter-section h2 {
-    color: #76ff03;
+    color: var(--highlight-color);
     margin-bottom: 1rem;
     font-size: 1.5rem;
     text-align: center;
@@ -226,7 +250,7 @@ button:active {
     flex: 1 1 45%;
     margin: 0.5rem;
     padding: 1rem;
-    background: #1e1e1e;
+    background: var(--secondary-bg-color);
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
 }
@@ -235,22 +259,22 @@ input[type="text"] {
     width: calc(100% - 20px);
     padding: 10px;
     margin-top: 0.5rem;
-    border: 1px solid #444;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
-    background-color: #2e2e2e;
-    color: #e0e0e0;
+    background-color: var(--tertiary-bg-color);
+    color: var(--text-color);
     transition: border-color 0.3s;
 }
 
 input[type="text"]:focus {
-    border-color: #76ff03;
+    border-color: var(--highlight-color);
     outline: none;
 }
 
 button {
     padding: 10px 15px;
-    background-color: #76ff03;
-    color: #121212;
+    background-color: var(--button-bg-color);
+    color: var(--button-text-color);
     border: none;
     border-radius: 4px;
     cursor: pointer;
@@ -265,7 +289,7 @@ button {
 }
 
 button:hover {
-    background-color: #64dd17;
+    background-color: var(--button-bg-hover);
     transform: translateY(-2px);
 }
 
@@ -277,21 +301,53 @@ button:active {
     padding: 1rem;
     margin: 1rem 0;
     border-radius: 4px;
+    text-align: center;
+    font-weight: bold;
 }
 
 .success {
-    background: #d4edda;
-    color: #155724;
+    background: rgba(40, 167, 69, 0.2);
+    color: #28a745;
+    border: 1px solid #28a745;
 }
 
 .error {
-    background: #f8d7da;
-    color: #721c24;
+    background: rgba(220, 53, 69, 0.2);
+    color: #dc3545;
+    border: 1px solid #dc3545;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--highlight-color);
+}
+
+select, input[type="number"] {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid var(--border-color);
+    background: #1a1a1a;
+    color: #fff;
+    border-radius: 4px;
+}
+
+select:focus, input[type="number"]:focus {
+    border-color: var(--highlight-color);
+    outline: none;
 }
 
 @media (max-width: 600px) {
     .management-container {
         padding: 0.5rem;
+    }
+
+    .results-table {
+        width: 100%;
     }
 
     button {

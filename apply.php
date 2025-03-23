@@ -1,11 +1,15 @@
 <?php
-    // Start the session if it hasn't been started yet, it maybe a little bit unnecessary:))
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
+session_start();
+require_once 'settings.php';
 
-    // Get stored form data from session
-    $form_data = $_SESSION['form_data'] ?? [];
+// Check if user is logged in
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php?apply=error");
+    exit();
+}
+
+// Get stored form data from session
+$form_data = $_SESSION['form_data'] ?? [];
 ?>
 
 <!DOCTYPE html>

@@ -219,6 +219,11 @@
         session_start();
     }
 
+    if (!isset($_SESSION['user_id'])) {
+        header("Location: login.php?apply=error");
+        exit();
+    }
+
     // Clear form data if reset button clicked
     if (isset($_POST['reset'])) {
         unset($_SESSION['form_data']);
@@ -261,6 +266,7 @@
             otherSkills text DEFAULT NULL,
             status enum('New','Current','Final') NOT NULL DEFAULT 'New',
             submitTime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            submitTime timestamp DEFAULT NULL,
             PRIMARY KEY (EOInum),
             UNIQUE KEY email (email),
             UNIQUE KEY phone (phoneNum)
@@ -309,12 +315,29 @@
             throw new RuntimeException('Execute failed: ' . $stmt->error);
         }
 
+        // Parse existing EOI numbers or create new array
+        $eoiNums = [];
+        if ($user['eoiNums'] !== null) {
+            $eoiNums = json_decode($user['eoiNums'], true) ?? [];
+        }
+
+        // Add new EOI number
+        $eoiNums[] = $conn->insert_id;
         // Store EOI number in session
         $_SESSION['eoi_number'] = $conn->insert_id;
+
+        // Update user's EOI numbers
+        $stmt = $conn->prepare("UPDATE users SET eoiNums = ? WHERE id = ?");
+        $eoiNumsJson = json_encode($eoiNums);
+        $stmt->bind_param('si', $eoiNumsJson, $_SESSION['user_id']);
         
+        if (!$stmt->execute()) {
+            throw new RuntimeException('Failed to update user EOI numbers: ' . $stmt->error);
+        }
+
         // Clear form data on success
         // unset($_SESSION['form_data']);
-        
+
         header('Location: success.php');
         exit();
 

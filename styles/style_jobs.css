@@ -3,6 +3,42 @@
     Purpose: CSS file for styling the website with common styles for header, menu, footer, etc.
 */
 
+/* Add these at the top of your CSS file */
+html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.page-wrapper {
+    min-height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.main-content {
+    flex: 1;
+    padding: 2rem;
+}
+
+.no-jobs-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh;
+    text-align: center;
+    color: #666;
+}
+
+.no-jobs-message h2 {
+    margin-bottom: 1rem;
+    font-size: 2rem;
+}
+
+.no-jobs-message p {
+    font-size: 1.2rem;
+}
 
 @import url('https://fonts.googleapis.com/css2?family=Jaro:opsz@6..72&family=Ramabhadra&display=swap');
 @import url('https://fonts.googleapis.com/css?family=Righteous&display=swap');
@@ -116,11 +152,11 @@ h1 {
     color: #007bff;
 }
 
+/* Update existing job container styles */
 .job-container {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-start;
-    padding: 20px;
+    display: grid;
+    gap: 2rem;
+    padding: 2rem 0;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
 }
 
@@ -180,6 +216,8 @@ h1 {
     border-radius: 10px;
     margin-bottom: 15px;
     transition: transform 0.3s;
+    object-fit: cover; /* Maintains aspect ratio */
+    background-color: #333; /* Placeholder background */
 }
 
 .job-listing aside {
@@ -190,7 +228,6 @@ h1 {
     margin: 10px;
     padding: 15px;
 }
-
 
 .job-listing h2 {
     font-size: 1.5em;
@@ -224,6 +261,7 @@ h1 {
 
 .job-description {
     height: 90px;
+    text-wrap: wrap;
 }
 
 .job-listing ol, .job-listing ul {
@@ -247,10 +285,29 @@ h1 {
     border-radius: 5px;
     transition: 0.3s;
 }
+
 .apply-button:hover {
     background-color: #0056b3;
 }
 
+.job-listing.no-jobs {
+    opacity: 0.7;
+    pointer-events: none;
+}
+
+.job-listing.no-jobs img {
+    filter: grayscale(100%);
+}
+
+.job-listing.no-jobs .apply-button {
+    background-color: #666;
+    cursor: not-allowed;
+}
+
+.job-listing.no-jobs section,
+.job-listing.no-jobs aside {
+    color: #666;
+}
 
 /* DIVIDER LINE */
 .divider-container {
@@ -296,6 +353,8 @@ td {
     position: relative;
     height: 70px;
     border-top: 2px solid #333333;
+    margin-top: auto;
+    /* ...existing footer styles... */
 }
 
 .footer-content {
@@ -373,5 +432,24 @@ td {
     }
     100% {
         transform: scale(1);
+    }
+}
+
+/* Media query for responsive layout */
+@media (max-width: 768px) {
+    .main-content {
+        padding: 1rem;
+    }
+    
+    .no-jobs-message {
+        min-height: 30vh;
+    }
+    
+    .no-jobs-message h2 {
+        font-size: 1.5rem;
+    }
+    
+    .no-jobs-message p {
+        font-size: 1rem;
     }
 }
