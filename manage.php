@@ -29,25 +29,23 @@
         * or applicant name, and managing EOI statuses.
     */
     class EOIManager {
-
         private $conn;
         private $limits;
 
-    public function __construct() {
-        $db = new Database();
-        $this->conn = $db->getConnection();
-    }
+        public function __construct() {
+            $db = new Database();
+            $this->conn = $db->getConnection();
+        }
 
-    /**
-        * Get EOIs with pagination (limit and offset)
-        *
-        * Retrieves all EOIs with specified limit and offset for pagination.
-        *
-        * @param int $limit The number of EOIs to retrieve
-        * @param int $offset The offset for pagination
-        * @return array An array of EOI records
-    */
-
+        /**
+            * Get EOIs with pagination (limit and offset)
+            *
+            * Retrieves all EOIs with specified limit and offset for pagination.
+            *
+            * @param int $limit The number of EOIs to retrieve
+            * @param int $offset The offset for pagination
+            * @return array An array of EOI records
+        */
         public function getAllEOIs($limit, $offset): array {
             $query = "SELECT * FROM eoi ORDER BY submitTime DESC LIMIT ? OFFSET ?";
             $stmt = $this->conn->prepare($query);
@@ -81,8 +79,7 @@
                * Retrieves the total count of EOIs in the database.
                *
                * @return int The total number of EOIs
-           */
-
+        */
         public function getTotalEOIs(): int {
             $result = $this->conn->query("SELECT COUNT(*) as total FROM eoi");
             return (int)$result->fetch_assoc()['total'];
@@ -102,10 +99,29 @@
             return $stmt->execute();
         }
 
-    public function __destruct() {
-        $this->conn->close();
+        public function __destruct() {
+            $this->conn->close();
+        }
     }
-}
+
+    // Check if user is logged in
+    // if (!isset($_SESSION['user_id'])) {
+    //     header("Location: login.php?manage=invalid_user");
+    //     exit();
+    // }
+
+    // Refresh user role
+    if (!refreshUserRole($_SESSION['user_id'])) {
+        session_destroy();
+        header("Location: login.php?error=invalid_user");
+        exit();
+    }
+
+    // Check if user is admin
+    if (strtolower($_SESSION['role']) !== 'admin') {
+        header("Location: login.php?manage=error");
+        exit();
+    }
 
     $manager = new EOIManager();
     $limit = isset($_SESSION['limit']) ? $_SESSION['limit'] : 10;
@@ -158,10 +174,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>EOI Management</title>
+    <link rel="stylesheet" href="styles/style_index.css">
     <link rel="stylesheet" href="styles/style_manage.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
+        <!-- HEADER SECTION -->
+        <header class="header">
+        <!-- Logo Section -->
+        <div class="header-logo">
+            <p>JOBS</p>
+            <img src="styles/images/logo.png" alt="Logo Image">
+            <p>TIME</p>
+        </div>
+        
+        <!-- Navigation and Auth Container -->
+        <div class="nav-auth-container">
+            <!-- Navigation Bar -->
+            <nav class="nav-bar">
+                <a href="index.php" class="nav-item">
+                    <p class="nav-main-item">Home</p>
+                    <p class="nav-sub-item">Main page</p>
+                </a>
+                <a href="about.php" class="nav-item">
+                    <p class="nav-main-item">About</p>
+                    <p class="nav-sub-item">More information</p>
+                </a>
+                <a href="jobs.php" class="nav-item">
+                    <p class="nav-main-item">Jobs</p>
+                    <p class="nav-sub-item">Find opportunities</p>
+                </a>
+                <a href="apply.php" class="nav-item">
+                    <p class="nav-main-item">Apply</p>
+                    <p class="nav-sub-item">Send applications</p>
+                </a>
+                <a href="enhancements.php" class="nav-item" id="last-item">
+                    <p class="nav-main-item">Enhancements</p>
+                    <p class="nav-sub-item">Feedback and Suggestions</p>
+                </a>
+                    <a href="phpenhancements.php" class="nav-item" id="last-item">
+                    <p class="nav-main-item">PHP Enhancements</p>
+                    <p class="nav-sub-item">Feedback and Suggestions</p>
+                </a>
+            </nav>
+
+            <!-- Auth Buttons -->
+            <div class="auth-buttons">
+                <?php if(isset($_SESSION['user_id'])): ?>
+                    <a href="dashboard.php" class="auth-btn account-btn">
+                        <i class="fas fa-user-circle"></i>
+                        Dashboard
+                    </a>
+                <?php endif; ?>
+            </div>
+        </div>
+    </header>
+
     <div class="management-container">
         <h1>EOI Management System</h1>
 
