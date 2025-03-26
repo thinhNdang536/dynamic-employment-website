@@ -1,7 +1,34 @@
 <?php
+    session_start(); //Must do=))
     require_once 'settings.php';
 
+    /**
+        * Database Connection and Settings Management
+        *
+        * This file contains the Database class for managing database connections
+        * and helper functions for user role management.
+        *
+        * PHP version 8.2.12
+        *
+        * @category   Configuration
+        * @package    Assignment2
+        * @author     Dang Quang Thinh
+        * @student-id 105551875
+        * @version    1.0.0
+
+    */
+
+    /**
+        * EOIManager Class
+        *
+        * This class manages Expressions of Interest (EOIs) including
+        * retrieving, filtering, and updating EOI records in the database.
+        *
+        * It provides methods for pagination, filtering by job reference
+        * or applicant name, and managing EOI statuses.
+    */
     class EOIManager {
+
         private $conn;
         private $limits;
 
@@ -10,7 +37,16 @@
         $this->conn = $db->getConnection();
     }
 
-        // Get EOIs with pagination (limit and offset)
+    /**
+        * Get EOIs with pagination (limit and offset)
+        *
+        * Retrieves all EOIs with specified limit and offset for pagination.
+        *
+        * @param int $limit The number of EOIs to retrieve
+        * @param int $offset The offset for pagination
+        * @return array An array of EOI records
+    */
+
         public function getAllEOIs($limit, $offset): array {
             $query = "SELECT * FROM eoi ORDER BY submitTime DESC LIMIT ? OFFSET ?";
             $stmt = $this->conn->prepare($query);
@@ -38,7 +74,14 @@
             return $result->fetch_all(MYSQLI_ASSOC);
         }
 
-        // Get total number of EOIs
+        /**
+               * Get total number of EOIs
+               *
+               * Retrieves the total count of EOIs in the database.
+               *
+               * @return int The total number of EOIs
+           */
+
         public function getTotalEOIs(): int {
             $result = $this->conn->query("SELECT COUNT(*) as total FROM eoi");
             return (int)$result->fetch_assoc()['total'];
@@ -62,11 +105,6 @@
         $this->conn->close();
     }
 }
-
-    // Start the session if it hasn't been started yet, it may be a little bit unnecessary:))
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
 
     $manager = new EOIManager();
     $limit = isset($_SESSION['limit']) ? $_SESSION['limit'] : 10;
