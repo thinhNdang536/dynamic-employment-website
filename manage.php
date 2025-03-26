@@ -3,19 +3,20 @@
     require_once 'settings.php';
 
     /**
-        * Database Connection and Settings Management
+        * Expressions of Interest (EOI) Management
         *
-        * This file contains the Database class for managing database connections
-        * and helper functions for user role management.
+        * This file contains the EOIManager class for managing Expressions of Interest (EOIs)
+        * in the system. It provides methods for retrieving, filtering, updating, and paginating
+        * EOI records in the database. The class also includes functionality for filtering EOIs by 
+        * job reference or applicant name and managing the status of EOIs.
         *
         * PHP version 8.2.12
         *
-        * @category   Configuration
+        * @category   Management
         * @package    Assignment2
         * @author     Dang Quang Thinh
         * @student-id 105551875
         * @version    1.0.0
-
     */
 
     /**
