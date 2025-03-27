@@ -1,163 +1,278 @@
 <?php
-session_start();
-require_once 'settings.php';
+    /**
+        * Dashboard for EOIs, Users and Job Summaries
+        *
+        * This file provides a dashboard view for managing Expressions of Interest (EOIs),
+        * user accounts, and job listings. It retrieves and displays summary data based on the
+        * current user's role. Admin users see management summaries, while non-admin users see
+        * their personal application details.
+        *
+        * PHP version 8.2.12
+        *
+        * @category   Management
+        * @package    Assignment2
+        * @author     Dang Quang Thinh
+        * @student-id 105551875
+        * @version    1.0.0
+    */
 
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
-}
+    session_start(); //Must do=))
+    require_once 'settings.php'; //Import db model from settings.php
 
-// Refresh user role from database
-$db = new Database();
-$conn = $db->getConnection();
-$stmt = $conn->prepare("SELECT role FROM users WHERE id = ?");
-$stmt->bind_param('i', $_SESSION['user_id']);
-$stmt->execute();
-$result = $stmt->get_result();
+    // Check if user is logged in
+    if (!isset($_SESSION['user_id'])) {
+        header("Location: login.php?error=invalid_user");
+        exit();
+    }
 
-if ($user = $result->fetch_assoc()) {
-    $_SESSION['role'] = $user['role'];
-} else {
-    // If user no longer exists in database, log them out
-    session_destroy();
-    header("Location: login.php?error=invalid_user");
-    exit();
-}
 
-// Check if user is admin for management features
-$isAdmin = isset($_SESSION['role']) && strtolower($_SESSION['role']) === 'admin';
-
-// Add EOI summary functionality
-class EOISummary {
-    private $conn;
-    
-    public function __construct() {
+    /**
+        * Refresh the user's role from the database and check if the user is an admin.
+        *
+        * This function retrieves the user's role using the user id stored in the session.
+        * If the user is found, it updates the session with the user's role. If not,
+        * it destroys the session and redirects to the login page with an error.
+        * Finally, it returns true if the user's role is 'admin' (case-insensitive), or false otherwise.
+        *
+        * @return bool True if the user is an admin, false otherwise.
+    */
+    function refreshUserRoleAndCheckAdmin() {
+        // Create a new Database instance and get the connection
         $db = new Database();
-        $this->conn = $db->getConnection();
-    }
-    
-    public function getTotalEOIs() {
-        $result = $this->conn->query("SELECT COUNT(*) as total FROM eoi");
-        return $result->fetch_assoc()['total'];
-    }
-    
-    public function getStatusCounts() {
-        // Default counts
-        $counts = [
-            'new' => 0,
-            'current' => 0,
-            'final' => 0
-        ];
+        $conn = $db->getConnection();
         
-        $query = "SELECT LOWER(status) as status, COUNT(*) as count FROM eoi GROUP BY status";
-        $result = $this->conn->query($query);
+        // Prepare and execute the query to fetch the user's role
+        $stmt = $conn->prepare("SELECT role FROM users WHERE id = ?");
+        $stmt->bind_param('i', $_SESSION['user_id']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+
+        // Check if the user is found and update the session with the role
+        if ($user = $result->fetch_assoc()) {
+            $_SESSION['role'] = $user['role'];
+        } else {
+            // User not found, destroy session and redirect to login with error message
+            // I don't like unauthorized access:vv
+            session_destroy();
+            header("Location: login.php?error=invalid_user");
+            exit();
+        }
+
+        // My db have limited connection so...=))
+        $stmt->close();
+        $conn->close();
         
-        if ($result) {
-            while($row = $result->fetch_assoc()) {
-                $status = strtolower($row['status']); // Convert to lowercase for consistent comparison:vvv i hate this
+        // Determine if the user is an admin (case-insensitive)
+        $isAdmin = isset($_SESSION['role']) && strtolower($_SESSION['role']) === 'admin';
+        return $isAdmin;
+    }
+
+    // Check if user is admin for management features
+    $isAdmin = refreshUserRoleAndCheckAdmin();
+
+
+    /**
+        * SummaryBase Class
+        *
+        * This abstract base class provides a common database connection for summary-related
+        * operations. All summary classes should extend this class.
+        * I love OOP=)), it kinda makes my code look like a work of art:>
+    */
+    abstract class SummaryBase {
+        /**
+            * @var mysqli Database connection instance.
+        */
+        protected $conn;
+        
+        /**
+            * Constructor.
+            * Initializes the database connection.
+        */
+        public function __construct() {
+            $db = new Database();
+            $this->conn = $db->getConnection();
+        }
+    }
+
+
+    /**
+           * EOISummary Class
+           *
+           * This class provides various methods to retrieve summary statistics and recent data
+           * for Expressions of Interest (EOIs), users, and job listings. It is used by the
+           * dashboard to display management summaries for admin users as well as personal EOI
+           * data for non-admin users.
+    */
+    class EOISummary extends SummaryBase {
+        /**
+            * Get total count of EOIs.
+            *
+            * @return int The total number of EOIs.
+        */
+        public function getTotalEOIs(): int {
+            $result = $this->conn->query("SELECT COUNT(*) as total FROM eoi");
+            return (int)$result->fetch_assoc()['total'];
+        }
+        
+        /**
+            * Get count of EOIs based on status.
+            *
+            * Returns an associative array with keys 'new', 'current', and 'final'.
+            *
+            * @return array Associative array of EOI counts by status.
+        */
+        public function getStatusCounts(): array {
+            $counts = ['new' => 0, 'current' => 0, 'final' => 0];
+            $query = "SELECT LOWER(status) as status, COUNT(*) as count FROM eoi GROUP BY status";
+            $result = $this->conn->query($query);
+            while ($row = $result->fetch_assoc()) {
+                $status = strtolower($row['status']);
                 if (array_key_exists($status, $counts)) {
                     $counts[$status] = (int)$row['count'];
                 }
             }
+            return $counts;
         }
         
-        return $counts;
+        /**
+            * Get recent EOIs.
+            *
+            * Retrieves the 5 most recent EOIs based on submission time.
+            *
+            * @return array An array of recent EOI records.
+        */
+        public function getRecentEOIs(): array {
+            $query = "SELECT * FROM eoi ORDER BY submitTime DESC LIMIT 5";
+            $result = $this->conn->query($query);
+            return $result->fetch_all(MYSQLI_ASSOC);
+        }
+        
+        /**
+            * Get EOIs submitted by a specific user.
+            *
+            * @param int $userId The ID of the user.
+            * @return array An array of EOI records for the specified user.
+        */
+        public function getUserEOIs($userId): array {
+            $query = "SELECT * FROM eoi WHERE user_id = ? ORDER BY submitTime DESC";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bind_param('i', $userId);
+            $stmt->execute();
+            return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        }
     }
     
-    public function getRecentEOIs() {
-        $query = "SELECT * FROM eoi ORDER BY submitTime DESC LIMIT 5";
-        $result = $this->conn->query($query);
-        return $result->fetch_all(MYSQLI_ASSOC);
-    }
-
-    public function getTotalUsers() {
-        $result = $this->conn->query("SELECT COUNT(*) as total FROM users");
-        return $result->fetch_assoc()['total'];
-    }
-    
-    public function getUserStatusCounts() {
-        $counts = [
-            'active' => 0,
-            'blocked' => 0
-        ];
+    /**
+        * UserSummary Class
+        *
+        * This class handles summary-related operations for users, such as retrieving
+        * the total number of users, counting users by active status, and fetching recent users.
+    */
+    class UserSummary extends SummaryBase {
+        /**
+            * Get total count of users.
+            *
+            * @return int The total number of users.
+        */
+        public function getTotalUsers(): int {
+            $result = $this->conn->query("SELECT COUNT(*) as total FROM users");
+            return (int)$result->fetch_assoc()['total'];
+        }
         
-        $query = "SELECT LOWER(is_active) as status, COUNT(*) as count FROM users GROUP BY is_active";
-        $result = $this->conn->query($query);
-        
-        if ($result) {
-            while($row = $result->fetch_assoc()) {
+        /**
+            * Get user count based on active status.
+            *
+            * Returns an associative array with keys 'active' and 'blocked'.
+            *
+            * @return array Associative array with user counts by status.
+        */
+        public function getUserStatusCounts(): array {
+            $counts = ['active' => 0, 'blocked' => 0];
+            $query = "SELECT LOWER(is_active) as status, COUNT(*) as count FROM users GROUP BY is_active";
+            $result = $this->conn->query($query);
+            while ($row = $result->fetch_assoc()) {
                 $status = strtolower($row['status']);
                 $counts[$status] = (int)$row['count'];
             }
+            return $counts;
         }
         
-        return $counts;
+        /**
+            * Get recent users.
+            *
+            * Retrieves the 5 most recently registered users.
+            *
+            * @return array An array of recent user records.
+        */
+        public function getRecentUsers(): array {
+            $query = "SELECT username, email, created_at, is_active FROM users ORDER BY created_at DESC LIMIT 5";
+            $result = $this->conn->query($query);
+            return $result->fetch_all(MYSQLI_ASSOC);
+        }
     }
     
-    public function getRecentUsers() {
-        $query = "SELECT username, email, created_at, is_active FROM users ORDER BY created_at DESC LIMIT 5";
-        $result = $this->conn->query($query);
-        return $result->fetch_all(MYSQLI_ASSOC);
-    }
-
-    public function getUserEOIs($userId) {
-        $query = "SELECT e.* FROM eoi e 
-                 INNER JOIN users u ON JSON_CONTAINS(u.eoiNums, CAST(e.EOInum AS JSON), '$')
-                 WHERE u.id = ? 
-                 ORDER BY e.submitTime DESC";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bind_param('i', $userId);
-        $stmt->execute();
-        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-    }
-
-    public function getJobSummary() {
-        $summary = [
-            'total' => 0,
-            'active' => 0
-        ];
-        
-        $result = $this->conn->query("SELECT 
-            COUNT(*) as total,
-            SUM(CASE WHEN active = true THEN 1 ELSE 0 END) as active
-            FROM jobs");
-        
-        if ($result) {
-            $row = $result->fetch_assoc();
-            $summary['total'] = (int)$row['total'];
-            $summary['active'] = (int)$row['active'];
+    /**
+        * JobSummary Class
+        *
+        * This class handles summary-related operations for job listings,
+        * such as retrieving the total number of jobs and the number of active jobs.
+        *
+        * @category Management
+        * @package  Assignment2
+        * @author   Dang Quang Thinh
+        * @version  1.0.0
+    */
+    class JobSummary extends SummaryBase {
+        /**
+            * Get job summary.
+            *
+            * Retrieves an associative array with the total number of jobs and the count of active jobs.
+            *
+            * @return array Associative array with keys 'total' and 'active'.
+        */
+        public function getJobSummary(): array {
+            $summary = ['total' => 0, 'active' => 0];
+            $query = "SELECT COUNT(*) as total, SUM(CASE WHEN active = true THEN 1 ELSE 0 END) as active FROM jobs";
+            $result = $this->conn->query($query);
+            if ($result) {
+                $row = $result->fetch_assoc();
+                $summary['total'] = (int)$row['total'];
+                $summary['active'] = (int)$row['active'];
+            }
+            return $summary;
         }
-        
-        return $summary;
     }
-}
+    
+    // Init instance of summaries
+    $eoiSummary = new EOISummary();
+    $userSummary = new UserSummary();
+    $jobSummary = new JobSummary();
+    
+    if ($isAdmin) {
+        $totalEOIs = $eoiSummary->getTotalEOIs();
+        $statusCounts = $eoiSummary->getStatusCounts();
+        $recentEOIs = $eoiSummary->getRecentEOIs();
 
-$summary = new EOISummary();
+        $totalUsers = $userSummary->getTotalUsers();
+        $userStatusCounts = $userSummary->getUserStatusCounts();
+        $recentUsers = $userSummary->getRecentUsers();
 
-// Load data based on user role
-if ($isAdmin) {
-    $totalEOIs = $summary->getTotalEOIs();
-    $statusCounts = $summary->getStatusCounts();
-    $recentEOIs = $summary->getRecentEOIs();
-    $totalUsers = $summary->getTotalUsers();
-    $userStatusCounts = $summary->getUserStatusCounts();
-    $recentUsers = $summary->getRecentUsers();
-    $jobSummary = $summary->getJobSummary();
-} else {
-    $userEOIs = $summary->getUserEOIs($_SESSION['user_id']);
-}
+        $jobSummaryData = $jobSummary->getJobSummary();
+    } else {
+        // For non-admin users, load personal EOIs=))
+        $userEOIs = $eoiSummary->getUserEOIs($_SESSION['user_id']);
+    }
 ?>
 <!doctype html>
 <html lang="en">
-  <head>
+<head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="styles/style_dashboard.css">
     <title>JobsTime - Dashboard</title>
-  </head>
-  <body>
+</head>
+<body>
     <!-- HEADER SECTION -->
     <header class="header">
         <!-- Logo Section -->
@@ -206,6 +321,7 @@ if ($isAdmin) {
     <main class="dashboard-content">
         <?php if ($isAdmin): ?>
             <!-- Admin View -->
+            <!-- EOI Management Summary Section -->
             <div class="eoi-summary">
                 <h2>EOI Management Summary</h2>
                 
@@ -215,6 +331,7 @@ if ($isAdmin) {
                         <p class="count"><?php echo $totalEOIs; ?></p>
                     </div>
                     
+                    <!-- EOI status summary cards here -->
                     <div class="summary-card">
                         <h3>Status Breakdown</h3>
                         <table class="status-table">
@@ -237,6 +354,7 @@ if ($isAdmin) {
                         </table>
                     </div>
                     
+                    <!-- Most recent EOI summary here -->
                     <div class="summary-card">
                         <h3>Recent Applications</h3>
                         <table>
@@ -256,6 +374,7 @@ if ($isAdmin) {
                     </div>
                 </div>
                 
+                <!-- For ultimate management=)) -->
                 <div class="manage-link">
                     <a href="manage.php" class="manage-btn">Go to Full Management</a>
                 </div>
@@ -270,6 +389,7 @@ if ($isAdmin) {
                         <p class="count"><?php echo $totalUsers; ?></p>
                     </div>
                     
+                    <!-- User status summary here -->
                     <div class="summary-card">
                         <h3>Status Breakdown</h3>
                         <table class="status-table">
@@ -288,6 +408,7 @@ if ($isAdmin) {
                         </table>
                     </div>
                     
+                    <!-- Most recent user here -->
                     <div class="summary-card">
                         <h3>Recent Users</h3>
                         <table>
@@ -307,6 +428,7 @@ if ($isAdmin) {
                     </div>
                 </div>
                 
+                <!-- For ultimate user management, go to user management page=)) -->
                 <div class="manage-link">
                     <a href="manage_user.php" class="manage-btn">Manage Users</a>
                 </div>
@@ -318,9 +440,10 @@ if ($isAdmin) {
                 <div class="summary-cards">
                     <div class="summary-card">
                         <h3>Total Jobs</h3>
-                        <p class="count"><?php echo $jobSummary['total']; ?></p>
+                        <p class="count"><?php echo $jobSummaryData['total']; ?></p>
                     </div>
                     
+                    <!-- Same as above:vv -->
                     <div class="summary-card">
                         <h3>Status Breakdown</h3>
                         <table class="status-table">
@@ -330,20 +453,23 @@ if ($isAdmin) {
                             </tr>
                             <tr>
                                 <td>Active</td>
-                                <td><?php echo $jobSummary['active']; ?></td>
+                                <td><?php echo $jobSummaryData['active']; ?></td>
                             </tr>
                             <tr>
                                 <td>Inactive</td>
-                                <td><?php echo $jobSummary['total'] - $jobSummary['active']; ?></td>
+                                <td><?php echo $jobSummaryData['total'] - $jobSummaryData['active']; ?></td>
                             </tr>
                         </table>
                     </div>
                 </div>
                 
+                <!-- Same as above:vv -->
                 <div class="manage-link">
                     <a href="manage_jobs.php" class="manage-btn">Manage Jobs</a>
                 </div>
             </div>
+
+
         <?php else: ?>
             <!-- User View -->
             <div class="eoi-summary">
@@ -404,5 +530,5 @@ if ($isAdmin) {
             </div>
         </div>
     </footer>
-  </body>
+</body>
 </html>

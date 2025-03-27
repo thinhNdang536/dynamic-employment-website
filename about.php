@@ -1,5 +1,5 @@
 <?php
-    session_start();
+    session_start(); // Just for check if user logged in or not:vv nevermind
 ?>
 <!DOCTYPE html>
 <html lang="en">

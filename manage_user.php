@@ -46,9 +46,6 @@
     class UserManager {
         private $conn;
 
-        /**
-            * Constructor initializes database connection.
-        */
         public function __construct() {
             $db = new Database();
             $this->conn = $db->getConnection();
@@ -146,84 +143,71 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Management - JobsTime</title>
-    <link rel="stylesheet" href="styles/style_dashboard.css">
-    <style>
-        .user-management {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 2rem;
-            background-color: #242424;
-            border-radius: 10px;
-        }
-
-        .search-bar {
-            margin-bottom: 2rem;
-            display: flex;
-            gap: 1rem;
-        }
-
-        .search-bar input {
-            flex: 1;
-            padding: 0.5rem;
-            border-radius: 4px;
-            border: 1px solid #444;
-            background-color: #333;
-            color: #fff;
-        }
-
-        .search-btn {
-            padding: 0.5rem 1rem;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .users-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-        }
-
-        .users-table th,
-        .users-table td {
-            padding: 1rem;
-            text-align: left;
-            border-bottom: 1px solid #444;
-        }
-
-        .users-table th {
-            background-color: #333;
-            color: #007bff;
-        }
-
-        .toggle-status {
-            padding: 0.5rem 1rem;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        .status-active {
-            background-color: #28a745;
-            color: white;
-        }
-
-        .status-blocked {
-            background-color: #dc3545;
-            color: white;
-        }
-    </style>
+    <link rel="stylesheet" href="styles/style_index.css">
+    <link rel="stylesheet" href="styles/style_manage_user.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
+    <!-- HEADER SECTION -->
+    <header class="header">
+        <!-- Logo Section -->
+        <div class="header-logo">
+            <p>JOBS</p>
+            <img src="styles/images/logo.png" alt="Logo Image">
+            <p>TIME</p>
+        </div>
+        
+        <!-- Navigation and Auth Container -->
+        <div class="nav-auth-container">
+            <!-- Navigation Bar -->
+            <nav class="nav-bar">
+                <a href="index.php" class="nav-item">
+                    <p class="nav-main-item">Home</p>
+                    <p class="nav-sub-item">Main page</p>
+                </a>
+                <a href="about.php" class="nav-item">
+                    <p class="nav-main-item">About</p>
+                    <p class="nav-sub-item">More information</p>
+                </a>
+                <a href="jobs.php" class="nav-item">
+                    <p class="nav-main-item">Jobs</p>
+                    <p class="nav-sub-item">Find opportunities</p>
+                </a>
+                <a href="apply.php" class="nav-item">
+                    <p class="nav-main-item">Apply</p>
+                    <p class="nav-sub-item">Send applications</p>
+                </a>
+                <a href="enhancements.php" class="nav-item" id="last-item">
+                    <p class="nav-main-item">Enhancements</p>
+                    <p class="nav-sub-item">Feedback and Suggestions</p>
+                </a>
+                    <a href="phpenhancements.php" class="nav-item" id="last-item">
+                    <p class="nav-main-item">PHP Enhancements</p>
+                    <p class="nav-sub-item">Feedback and Suggestions</p>
+                </a>
+            </nav>
+
+            <!-- Auth Buttons -->
+            <div class="auth-buttons">
+                <?php if(isset($_SESSION['user_id'])): ?>
+                    <a href="dashboard.php" class="auth-btn account-btn">
+                        <i class="fas fa-user-circle"></i>
+                        Dashboard
+                    </a>
+                <?php endif; ?>
+            </div>
+        </div>
+    </header>
+
     <div class="user-management">
         <h2>User Management</h2>
 
+        <!-- Display message if found -->
         <?php if ($message): ?>
             <p class="success"><?php echo htmlspecialchars($message); ?></p>
         <?php endif; ?>
 
+        <!-- Display error if found -->
         <?php if ($error): ?>
             <p class="error"><?php echo htmlspecialchars($error); ?></p>
         <?php endif; ?>
@@ -267,5 +251,28 @@
             </tbody>
         </table>
     </div>
+
+    <!-- FOOTER SECTION -->
+    <footer class="footer">
+        <!-- Copyright Area -->
+        <div class="footer-content">
+            <p class="copyright">
+                Copyright &copy; 2018, All Right Reserved
+                <a href="mailto:105551875@student.swin.edu.au" class="link">(Our student email)</a>
+            </p>
+
+            <!-- Footer Menu Links -->
+            <div class="footer-menu">
+                <ul>
+                    <li><a href="index.php">Home</a></li>
+                    <li><a href="about.php">About</a></li>
+                    <li><a href="jobs.php">Job</a></li>
+                    <li><a href="apply.php">Apply</a></li>
+                    <li><a href="enhancements.php">Enhancements</a></li>
+                    <li><a href="phpenhancements.php">PHP Enhancements</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>

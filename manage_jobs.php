@@ -45,25 +45,10 @@
         * - Toggling the active/inactive status of a job.
         * - Summarizing job statistics.
         * - Creating, updating, and deleting job records.
-        *
-        * @category Management
-        * @package  Assignment2
-        * @author   Dang Quang Thinh
-        * @version  1.0.0
     */
     class JobManager {
-        /**
-            * @var mysqli $conn Database connection instance.
-        */
         public $conn;
         
-        /**
-            * Constructor.
-            *
-            * Initializes the database connection and disables autocommit for transaction management.
-            *
-            * @return void
-        */
         public function __construct() {
             $db = new Database();
             $this->conn = $db->getConnection();
@@ -394,7 +379,6 @@
                 } else {
                     $error = "Failed to delete job.";
                 }
-                header("Location: " . $_SERVER['PHP_SELF']);
                 break;
 
             case 'edit':
@@ -408,7 +392,6 @@
                 } else {
                     $error = "Failed to update job status.";
                 }
-                header("Location: " . $_SERVER['PHP_SELF']);
                 break;
 
             case 'cancel':
@@ -424,22 +407,78 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Job Management - JobsTime</title>
+    <link rel="stylesheet" href="styles/style_index.css">
     <link rel="stylesheet" href="styles/style_dashboard.css">
     <link rel="stylesheet" href="styles/style_manage_job.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
+    <!-- HEADER SECTION -->
+    <header class="header">
+        <!-- Logo Section -->
+        <div class="header-logo">
+            <p>JOBS</p>
+            <img src="styles/images/logo.png" alt="Logo Image">
+            <p>TIME</p>
+        </div>
+        
+        <!-- Navigation and Auth Container -->
+        <div class="nav-auth-container">
+            <!-- Navigation Bar -->
+            <nav class="nav-bar">
+                <a href="index.php" class="nav-item">
+                    <p class="nav-main-item">Home</p>
+                    <p class="nav-sub-item">Main page</p>
+                </a>
+                <a href="about.php" class="nav-item">
+                    <p class="nav-main-item">About</p>
+                    <p class="nav-sub-item">More information</p>
+                </a>
+                <a href="jobs.php" class="nav-item">
+                    <p class="nav-main-item">Jobs</p>
+                    <p class="nav-sub-item">Find opportunities</p>
+                </a>
+                <a href="apply.php" class="nav-item">
+                    <p class="nav-main-item">Apply</p>
+                    <p class="nav-sub-item">Send applications</p>
+                </a>
+                <a href="enhancements.php" class="nav-item" id="last-item">
+                    <p class="nav-main-item">Enhancements</p>
+                    <p class="nav-sub-item">Feedback and Suggestions</p>
+                </a>
+                    <a href="phpenhancements.php" class="nav-item" id="last-item">
+                    <p class="nav-main-item">PHP Enhancements</p>
+                    <p class="nav-sub-item">Feedback and Suggestions</p>
+                </a>
+            </nav>
+
+            <!-- Auth Buttons -->
+            <div class="auth-buttons">
+                <?php if(isset($_SESSION['user_id'])): ?>
+                    <a href="dashboard.php" class="auth-btn account-btn">
+                        <i class="fas fa-user-circle"></i>
+                        Dashboard
+                    </a>
+                <?php endif; ?>
+            </div>
+        </div>
+    </header>
+
     <div class="management-container">
         <h1>Job Management</h1>
         
+        <!-- Display message if found -->
         <?php if ($message): ?>
             <p class="success"><?php echo htmlspecialchars($message); ?></p>
         <?php endif; ?>
         
+        <!-- Display error if found -->
         <?php if ($error): ?>
             <p class="error"><?php echo htmlspecialchars($error); ?></p>
         <?php endif; ?>
 
         <div class="job-form-container">
+            <!-- Create job btn -->
             <?php if (!$editJob): ?>
                 <form method="POST">
                     <input type="hidden" name="action" value="show_form">
@@ -447,6 +486,7 @@
                 </form>
             <?php endif; ?>
             
+            <!-- Kinda complicated:vv, but for easy understanding. If editJob is set, show job data to update form, else show blank form inputs -->
             <?php if ($editJob || isset($_POST['action']) && $_POST['action'] === 'show_form'): ?>
                 <form method="POST" class="job-form show">
                     <input type="hidden" name="action" value="<?php echo $editJob ? 'update' : 'create'; ?>">
@@ -505,6 +545,7 @@
                     </div>
 
                     <div class="form-buttons">
+                        <!-- If editing a job, display the update btn, else just create btn=)) -->
                         <form method="POST">
                             <input type="hidden" name="action" value="<?php echo $editJob ? 'update' : 'create'; ?>">
                             <?php if ($editJob): ?>
@@ -558,6 +599,7 @@
                                     </button>
                                 </form>
 
+                                <!-- Edit is update job:vv -->
                                 <form method="POST" style="display: inline;">
                                     <input type="hidden" name="action" value="edit">
                                     <input type="hidden" name="jobRef" value="<?php echo htmlspecialchars($job['jobRef']); ?>">
@@ -577,18 +619,27 @@
         </table>
     </div>
 
-    <script>
-    function toggleJobForm() {
-        const form = document.getElementById('jobForm');
-        form.classList.toggle('show');
-    }
+    <!-- FOOTER SECTION -->
+    <footer class="footer">
+        <!-- Copyright Area -->
+        <div class="footer-content">
+            <p class="copyright">
+                Copyright &copy; 2018, All Right Reserved
+                <a href="mailto:105551875@student.swin.edu.au" class="link">(Our student email)</a>
+            </p>
 
-    function resetForm() {
-        const form = document.getElementById('jobForm');
-        form.reset();
-        form.classList.remove('show');
-        form.action.value = 'create';
-    }
-    </script>
+            <!-- Footer Menu Links -->
+            <div class="footer-menu">
+                <ul>
+                    <li><a href="index.php">Home</a></li>
+                    <li><a href="about.php">About</a></li>
+                    <li><a href="jobs.php">Job</a></li>
+                    <li><a href="apply.php">Apply</a></li>
+                    <li><a href="enhancements.php">Enhancements</a></li>
+                    <li><a href="phpenhancements.php">PHP Enhancements</a></li>
+                </ul>
+            </div>
+        </div>
+    </footer>
 </body>
 </html>

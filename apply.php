@@ -1,10 +1,7 @@
 <?php
-    // Start the session if it hasn't been started yet, it maybe a little bit unnecessary:))
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
+    session_start(); // Start the session for application and auth check
 
-    // Get stored form data from session
+    // Get stored form data from session, very important:vv
     $form_data = $_SESSION['form_data'] ?? [];
 ?>
 

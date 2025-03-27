@@ -1,66 +1,99 @@
 <?php
-session_start();
-require_once 'settings.php';
+    session_start(); //Must do=))
+    require_once 'settings.php'; //Import db model from settings.php
 
-// Check if user is admin
-if (!isset($_SESSION['user_id']) || strtolower($_SESSION['role']) !== 'admin') {
-    header("Location: login.php?manage=error");
-    exit();
-}
+    // Redirects non-admin users to login page. ONLY ADMIN CAN CREATE ADMIN=))
+    if (!isset($_SESSION['user_id']) || strtolower($_SESSION['role']) !== 'admin') {
+        header("Location: login.php?manage=error");
+        exit();
+    }
 
-$errors = [];
-$success = '';
+    $errors = []; // now i use global var, no array_merge. just don't know why:vv
+    $success = '';
 
-if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $db = new Database();
-    $conn = $db->getConnection();
-    
-    // Get and sanitize input
-    $username = trim(mysqli_real_escape_string($conn, $_POST['username']));
-    $email = trim(mysqli_real_escape_string($conn, $_POST['email']));
-    $password = $_POST['password'];
-    $confirm_password = $_POST['confirm_password'];
-    
-    // Validation
-    if (empty($username)) {
-        $errors[] = "Username is required";
-    } elseif (strlen($username) < 5) {
-        $errors[] = "Username must be at least 5 characters";
+    if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+        $db = new Database();
+        $conn = $db->getConnection();
+        
+        $username = sanitizeInput($conn, $_POST['username']);
+        $email = sanitizeInput($conn, $_POST['email']);
+        $password = $_POST['password'];
+        $confirm_password = $_POST['confirm_password'];
+        
+        validateUsername($username, $errors);
+        validateEmail($email, $errors);
+        validatePassword($password, $confirm_password, $errors);
+        checkExistingUser($conn, $username, $email, $errors);
+        
+        if (empty($errors)) {
+            createManagerAccount($conn, $username, $email, $password, $success, $errors);
+        }
+        
+        $conn->close();
     }
-    
-    if (empty($email)) {
-        $errors[] = "Email is required";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = "Invalid email format";
+
+    /**
+        * Sanitizes user input to prevent SQL injection.
+    */
+    function sanitizeInput($conn, $input) {
+        return trim(mysqli_real_escape_string($conn, $input));
     }
-    
-    // Strict password rules for managers
-    if (empty($password)) {
-        $errors[] = "Password is required";
-    } elseif (strlen($password) < 12) {
-        $errors[] = "Password must be at least 12 characters";
-    } elseif (!preg_match("/[A-Z]/", $password)) {
-        $errors[] = "Password must contain at least one uppercase letter";
-    } elseif (!preg_match("/[a-z]/", $password)) {
-        $errors[] = "Password must contain at least one lowercase letter";
-    } elseif (!preg_match("/[0-9]/", $password)) {
-        $errors[] = "Password must contain at least one number";
-    } elseif (!preg_match("/[!@#$%^&*()\-_=+{};:,<.>]/", $password)) {
-        $errors[] = "Password must contain at least one special character";
+
+    /**
+        * Validates the username.
+    */
+    function validateUsername($username, &$errors) {
+        if (empty($username)) {
+            $errors[] = "Username is required";
+        } elseif (strlen($username) < 5) {
+            $errors[] = "Username must be at least 5 characters";
+        }
     }
-    
-    if ($password !== $confirm_password) {
-        $errors[] = "Passwords do not match";
+
+    /**
+        * Validates the email format.
+    */
+    function validateEmail($email, &$errors) {
+        if (empty($email)) {
+            $errors[] = "Email is required";
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = "Invalid email format";
+        }
     }
-    
-    // Check if username or email already exists
-    $check_query = "SELECT username, email FROM users WHERE username = ? OR email = ?";
-    $stmt = $conn->prepare($check_query);
-    $stmt->bind_param("ss", $username, $email);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    
-    if ($result->num_rows > 0) {
+
+    /**
+        * Validates the password according to security standards.
+    */
+    function validatePassword($password, $confirm_password, &$errors) {
+        if (empty($password)) {
+            $errors[] = "Password is required";
+        } elseif (strlen($password) < 12) {
+            $errors[] = "Password must be at least 12 characters";
+        } elseif (!preg_match("/[A-Z]/", $password)) {
+            $errors[] = "Password must contain at least one uppercase letter";
+        } elseif (!preg_match("/[a-z]/", $password)) {
+            $errors[] = "Password must contain at least one lowercase letter";
+        } elseif (!preg_match("/[0-9]/", $password)) {
+            $errors[] = "Password must contain at least one number";
+        } elseif (!preg_match("/[!@#$%^&*()\-_=+{};:,<.>]/", $password)) {
+            $errors[] = "Password must contain at least one special character";
+        }
+        
+        if ($password !== $confirm_password) {
+            $errors[] = "Passwords do not match";
+        }
+    }
+
+    /**
+        * Checks if the username or email already exists in the database.
+    */
+    function checkExistingUser($conn, $username, $email, &$errors) {
+        $query = "SELECT username, email FROM users WHERE username = ? OR email = ?";
+        $stmt = $conn->prepare($query);
+        $stmt->bind_param("ss", $username, $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        
         while ($row = $result->fetch_assoc()) {
             if ($row['username'] === $username) {
                 $errors[] = "Username already exists";
@@ -69,15 +102,19 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $errors[] = "Email already exists";
             }
         }
+        
+        $stmt->close();
     }
-    
-    // If no errors, proceed with registration
-    if (empty($errors)) {
+
+    /**
+        * Creates a new manager account if validation is successful.
+    */
+    function createManagerAccount($conn, $username, $email, $password, &$success, &$errors) {
         $hashed_password = password_hash($password, PASSWORD_DEFAULT);
         $role = 'admin';
         
-        $insert_query = "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)";
-        $stmt = $conn->prepare($insert_query);
+        $query = "INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)";
+        $stmt = $conn->prepare($query);
         $stmt->bind_param("ssss", $username, $email, $hashed_password, $role);
         
         if ($stmt->execute()) {
@@ -85,11 +122,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         } else {
             $errors[] = "Registration failed. Please try again.";
         }
+        
+        $stmt->close();
     }
-    
-    $stmt->close();
-    $conn->close();
-}
 ?>
 
 <!DOCTYPE html>

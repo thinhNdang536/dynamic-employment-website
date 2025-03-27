@@ -1,11 +1,10 @@
 <?php
-    // Start the session if it hasn't been started
     session_start();
 
-    // Clear all session variables
+    // Clear all session variables if no user data will stay in session:vvv
     $_SESSION = array();
 
-    // Destroy the session cookie
+    // Destroy the session cookie, so the user will not be logged in anymore=))
     if (isset($_COOKIE[session_name()])) {
         setcookie(session_name(), '', time()-3600, '/');
     }

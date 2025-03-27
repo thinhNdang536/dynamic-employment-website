@@ -1,9 +1,33 @@
 <?php
+    /**
+        * EOI Application Form Processing and Validation
+        *
+        * This script handles form submission for an Expression of Interest (EOI) application.
+        * It validates and sanitizes user input according to predefined rules, creates a database
+        * table if it does not exist, checks for duplicate email and phone entries, and inserts
+        * a new record into the database. If any errors occur, they are logged and the user is
+        * redirected to an error page.
+        *
+        * PHP version 8.2.12
+        *
+        * @category   Management
+        * @package    Assignment2
+        * @author     Dang Quang Thinh
+        * @student-id 105551875
+        * @version    1.0.0
+    */
+
     declare(strict_types=1);
     require_once 'settings.php';
 
-    // This is non-inheritable class because it is a dataclass:vv
-    // use final for prevent inheritence
+    /**
+        * Final class ValidationRules
+        *
+        * This class defines the regex patterns, valid state/postcode pairs, error messages, and 
+        * form field validation rules used by the FormValidator class.
+        * useing final for preventing inheritance=))
+        * aka data class:vv
+    */
     final class ValidationRules {
         const PATTERNS = [
             'JOB_REF_NUM' => '/^[a-zA-Z0-9]{5}$/',
@@ -78,10 +102,25 @@
         public const REQUIRED_SKILLS = ['problem_solving', 'leadership', 'communication', 'responsibility'];
     }
 
+
+
+    /**
+        * Class FormValidator
+        *
+        * This class handles sanitization and validation of form input data.
+        * It validates inputs using regex patterns and custom rules, and stores sanitized
+        * data for further processing.
+    */
     class FormValidator {
         private array $errors = [];
         private array $sanitizedData = [];
 
+        /**
+            * Sanitize input data recursively.
+            *
+            * @param mixed $data Input data (string or array)
+            * @return mixed Sanitized data
+        */
         public function sanitize($data) {
             // Check if the input is an array:vvv
             if (is_array($data)) {
@@ -92,6 +131,11 @@
             return htmlspecialchars(stripslashes(trim($data)));
         }
 
+        /**
+            * Validate inputs based on regex patterns defined in ValidationRules::FIELDS.
+            *
+            * @param array $post Form input data
+        */
         private function validatePatternInput(array $post) {
             foreach (ValidationRules::FIELDS as $field => $rules) {
                 $value = $this -> sanitize($post[$field] ?? '');
@@ -112,6 +156,13 @@
             }
         }
 
+        /**
+            * Validate date format and return a DateTime object.
+            *
+            * @param string $date Date string in d/m/Y format
+            * @return DateTime Validated DateTime object
+            * @throws InvalidArgumentException If date is invalid
+        */
         private function validateDateFormat(string $date) {
             if (!preg_match(ValidationRules::PATTERNS['DATE'], $date)) {
                 throw new InvalidArgumentException(ValidationRules::MESSAGES['DOB']);
@@ -125,6 +176,12 @@
             return DateTime::createFromFormat('d/m/Y', $date);
         }
 
+        /**
+            * Validate age from DateTime object.
+            *
+            * @param DateTime $dob Date of birth
+            * @return string Formatted date string (Y-m-d)
+        */
         private function validateAge(DateTime $dob): string {
             $age = $dob->diff(new DateTime())->y;
             
@@ -135,6 +192,13 @@
             return $dob->format('Y-m-d');
         }
 
+        /**
+            * Validate that the postcode matches the state's valid postcode prefixes.
+            *
+            * @param string $postcode Postcode value
+            * @param string $state State abbreviation
+            * @throws InvalidArgumentException If state is invalid or postcode prefix does not match
+        */
         private function validatePostcode(string $postcode, string $state): void {
             if (!isset(ValidationRules::STATE_POSTCODES[$state])) {
                 throw new InvalidArgumentException(ValidationRules::MESSAGES['STATE']);
@@ -146,6 +210,11 @@
             }
         }
 
+        /**
+            * Validate non-pattern inputs such as address, DOB, gender, state, postcode, and skills.
+            *
+            * @param array $post Form input data
+        */
         private function validateNonPatternInput(array $post): void {
             $this->sanitizedData['address'] = $this->sanitize($post['address'] ?? '');
             $this->sanitizedData['suburb'] = $this->sanitize($post['town'] ?? '');
@@ -199,16 +268,40 @@
             }
         }
 
+        /**
+            * Validate the form input data.
+            *
+            * This method validates both pattern-based inputs (using regex) and non-pattern inputs
+            * (e.g., date, gender, state, postcode, skills) by calling the respective private validation
+            * methods. It returns true if no errors were encountered during validation.
+            *
+            * @param array $post An associative array containing the raw form input data.
+            * @return bool True if validation passes (no errors), false otherwise.
+        */
         public function validateInput(array $post): bool {
             $this->validatePatternInput($post);
             $this->validateNonPatternInput($post);
             return empty($this->errors);
         }
 
+        /**
+            * Retrieve validation error messages.
+            *
+            * Returns an array of error messages generated during the validation process.
+            *
+            * @return array An array of error messages.
+        */
         public function getErrors(): array {
             return $this->errors;
         }
 
+        /**
+            * Retrieve sanitized form input data.
+            *
+            * Returns an associative array containing the sanitized data from the form.
+            *
+            * @return array The sanitized form input data.
+        */
         public function getSanitizedData(): array {
             return $this->sanitizedData;
         }
