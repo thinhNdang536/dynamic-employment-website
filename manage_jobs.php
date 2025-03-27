@@ -15,8 +15,8 @@
         * @version    1.0.0
     */
 
-    session_start();
-    require_once 'settings.php';
+    session_start(); //Must do=))
+    require_once 'settings.php'; //Import model from settings.php
 
     // Check if user is logged in
     if (!isset($_SESSION['user_id'])) {
@@ -24,14 +24,14 @@
         exit();
     }
 
-    // Refresh user role
+    // Refresh user role each time the page is loaded, kinda waste resource:vv but necessary
     if (!refreshUserRole($_SESSION['user_id'])) {
         session_destroy();
         header("Location: login.php?error=invalid_user");
         exit();
     }
 
-    // Check if user is admin
+    // Check if user is admin, for access control=))
     if (strtolower($_SESSION['role']) !== 'admin') {
         header("Location: login.php?manage=error");
         exit();
@@ -131,7 +131,7 @@
                     throw new Exception("Failed to update status: " . $updateStmt->error);
                 }
                 
-                // Commit the transaction
+                // Commit the transaction, very important for changes:vvv
                 $this->conn->commit();
                 return true;
                 
@@ -329,12 +329,14 @@
         }
     }
 
+    // Init db and create necessary vars
     $manager = new JobManager();
     $jobs = $manager->getAllJobs();
     $message = '';
     $error = '';
     $editJob = null;
 
+    // Handle form submission, such as adding or editing a job;>
     if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         switch ($_POST['action']) {
             case 'create':
@@ -381,7 +383,7 @@
                     $jobs = $manager->getAllJobs(); // Refresh list
                 } else {
                     $error = "Failed to update job. Please check the error log.";
-                    $editJob = $manager->getJob($_POST['jobRef']); // Keep form open with data
+                    $editJob = $manager->getJob($_POST['jobRef']); // Keep form open with data:v
                 }
                 break;
 

@@ -1,7 +1,4 @@
 <?php
-    session_start(); // Must do=))
-    require_once 'settings.php';
-
     /**
         * User Authentication and Session Management
         *
@@ -16,6 +13,9 @@
         * @student-id 105551875
         * @version    1.0.0
     */
+
+    session_start(); //Must do=))
+    require_once 'settings.php'; //Import db model from settings.php
 
     /**
         * Class Auth
@@ -188,7 +188,8 @@
             try {
                 $this->conn->begin_transaction();
                 if ($attempts >= 3) {
-                    $locked_until = date('Y-m-d H:i:s', strtotime('+30 minutes'));
+                    // Lock the account if attempts reach the limit:>
+                    $locked_until = date('Y-m-d H:i:s', strtotime('+30 minutes')); // Lock for 30 minutes=)
                     $update_query = "UPDATE users SET login_attempts = ?, locked_until = ?, is_active = 'Blocked' WHERE id = ?";
                     $this->executeUpdate($update_query, "isi", [$attempts, $locked_until, $user['id']]);
                     $this->error = "Account has been locked for 30 minutes due to too many failed attempts.";

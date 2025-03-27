@@ -1,102 +1,143 @@
 <?php
-session_start();
-require_once 'settings.php';
+    /**
+        * User Management System
+        *
+        * This file contains the UserManager class, responsible for managing user accounts
+        * in the JobsTime system. It includes functionality for retrieving user lists,
+        * searching users, and toggling user status.
+        *
+        * PHP version 8.2.12
+        *
+        * @category   UserManagement
+        * @package    JobsTime
+        * @author     Dang Quang Thinh
+        * @student-id 105551875
+        * @version    1.0.0
+    */
 
-// Check if user is logged in
-if (!isset($_SESSION['user_id'])) {
-    header("Location: login.php");
-    exit();
-}
+    session_start(); //Must do=))
+    require_once 'settings.php'; //Import db model from settings.php
 
-// Refresh user role
-if (!refreshUserRole($_SESSION['user_id'])) {
-    session_destroy();
-    header("Location: login.php?error=invalid_user");
-    exit();
-}
-
-// Check if user is admin
-if (strtolower($_SESSION['role']) !== 'admin') {
-    header("Location: login.php?manage=error");
-    exit();
-}
-
-class UserManager {
-    private $conn;
-    
-    public function __construct() {
-        $db = new Database();
-        $this->conn = $db->getConnection();
+    // Check if user is logged in
+    if (!isset($_SESSION['user_id'])) {
+        header("Location: login.php");
+        exit();
     }
-    
-    public function getAllUsers($limit = 10, $offset = 0) {
-        $query = "SELECT id, username, email, created_at, last_login, is_active 
-                 FROM users 
-                 ORDER BY created_at DESC 
-                 LIMIT ? OFFSET ?";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bind_param("ii", $limit, $offset);
-        $stmt->execute();
-        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-    }
-    
-    public function toggleUserStatus($userId) {
-        $query = "UPDATE users 
-                 SET is_active = CASE 
-                    WHEN is_active = 'Active' THEN 'Blocked'
-                    ELSE 'Active'
-                 END 
-                 WHERE id = ?";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bind_param("i", $userId);
-        return $stmt->execute();
-    }
-    
-    public function searchUsers($term) {
-        $term = "%$term%";
-        $query = "SELECT id, username, email, created_at, last_login, is_active 
-                 FROM users 
-                 WHERE username LIKE ? OR email LIKE ?
-                 ORDER BY created_at DESC";
-        $stmt = $this->conn->prepare($query);
-        $stmt->bind_param("ss", $term, $term);
-        $stmt->execute();
-        return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
-    }
-}
 
-$manager = new UserManager();
-$users = [];
-$message = '';
-$error = '';
+    // Refresh user role each time the page is loaded, kinda waste resource:vv but necessary
+    if (!refreshUserRole($_SESSION['user_id'])) {
+        session_destroy();
+        header("Location: login.php?error=invalid_user");
+        exit();
+    }
 
-// Handle actions
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_POST['action'])) {
+    // Check if user is admin, for access control=))
+    if (strtolower($_SESSION['role']) !== 'admin') {
+        header("Location: login.php?manage=error");
+        exit();
+    }
+
+    /**
+        * Class UserManager
+        *
+        * Manages user-related operations, including retrieving users, 
+        * searching users by username/email, and toggling user status.
+    */
+    class UserManager {
+        private $conn;
+
+        /**
+            * Constructor initializes database connection.
+        */
+        public function __construct() {
+            $db = new Database();
+            $this->conn = $db->getConnection();
+        }
+
+        /**
+            * Retrieves a paginated list of users.
+            *
+            * @param int $limit  Number of users per page (default: 10).
+            * @param int $offset Offset for pagination (default: 0).
+            * @return array Associative array of users.
+        */
+        public function getAllUsers($limit = 10, $offset = 0) {
+            $query = "SELECT id, username, email, created_at, last_login, is_active 
+                    FROM users 
+                    ORDER BY created_at DESC 
+                    LIMIT ? OFFSET ?";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bind_param("ii", $limit, $offset);
+            $stmt->execute();
+            return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        }
+
+        /**
+            * Toggles the activation status of a user.
+            *
+            * @param int $userId The ID of the user.
+            * @return bool Returns true if update is successful, false otherwise.
+        */
+        public function toggleUserStatus($userId) {
+            $query = "UPDATE users 
+                    SET is_active = CASE 
+                        WHEN is_active = 'Active' THEN 'Blocked'
+                        ELSE 'Active'
+                    END 
+                    WHERE id = ?";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bind_param("i", $userId);
+            return $stmt->execute();
+        }
+
+        /**
+            * Searches for users by username or email.
+            *
+            * @param string $term The search term (username or email).
+            * @return array Associative array of matching users.
+        */
+        public function searchUsers($term) {
+            $term = "%$term%";
+            $query = "SELECT id, username, email, created_at, last_login, is_active 
+                    FROM users 
+                    WHERE username LIKE ? OR email LIKE ?
+                    ORDER BY created_at DESC";
+            $stmt = $this->conn->prepare($query);
+            $stmt->bind_param("ss", $term, $term);
+            $stmt->execute();
+            return $stmt->get_result()->fetch_all(MYSQLI_ASSOC);
+        }
+    }
+
+    // Init the database connection and user model
+    $manager = new UserManager();
+    $users = [];
+    $message = '';
+    $error = '';
+
+    // Handle actions, e.g., login, register, toggle user status, search users
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         switch ($_POST['action']) {
             case 'toggle_status':
-                if (isset($_POST['user_id'])) {
-                    if ($manager->toggleUserStatus($_POST['user_id'])) {
-                        $message = "User status updated successfully.";
-                    } else {
-                        $error = "Failed to update user status.";
-                    }
+                if (!empty($_POST['user_id']) && $manager->toggleUserStatus($_POST['user_id'])) {
+                    $message = "User status updated successfully.";
+                } else {
+                    $error = "Failed to update user status.";
                 }
                 break;
-                
+            
             case 'search':
-                if (isset($_POST['search_term'])) {
+                if (!empty($_POST['search_term'])) {
                     $users = $manager->searchUsers($_POST['search_term']);
                 }
                 break;
         }
     }
-}
 
-// Get all users if no search performed
-if (empty($users)) {
-    $users = $manager->getAllUsers();
-}
+    // Get all users if no search performed:vv at worst case, we have to fetch all users from the db
+    if (empty($users)) {
+        $users = $manager->getAllUsers();
+    }
 ?>
 
 <!DOCTYPE html>

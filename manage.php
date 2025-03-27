@@ -1,7 +1,4 @@
 <?php
-    session_start(); //Must do=))
-    require_once 'settings.php';
-
     /**
         * Expressions of Interest (EOI) Management
         *
@@ -18,6 +15,28 @@
         * @student-id 105551875
         * @version    1.0.0
     */
+
+    session_start(); //Must do=))
+    require_once 'settings.php'; //Import db model from settings.php
+
+    // Check if user is logged in
+    if (!isset($_SESSION['user_id'])) {
+        header("Location: login.php");
+        exit();
+    }
+
+    // Refresh user role each time the page is loaded, kinda waste resource:vv but necessary
+    if (!refreshUserRole($_SESSION['user_id'])) {
+        session_destroy();
+        header("Location: login.php?error=invalid_user");
+        exit();
+    }
+
+    // Check if user is admin, for access control=))
+    if (strtolower($_SESSION['role']) !== 'admin') {
+        header("Location: login.php?manage=error");
+        exit();
+    }
 
     /**
         * EOIManager Class
@@ -55,6 +74,12 @@
             return $result->fetch_all(MYSQLI_ASSOC);
         }
 
+        /**
+            * Retrieves EOIs (Expressions of Interest) by job reference.
+            *
+            * @param string $jobRef The job reference number to filter EOIs.
+            * @return array An array of EOIs matching the provided job reference.
+        */
         public function getEOIsByJobRef($jobRef): array {
             $query = "SELECT * FROM eoi WHERE jobRef = ? ORDER BY submitTime DESC";
             $stmt = $this->conn->prepare($query);
@@ -64,6 +89,13 @@
             return $result->fetch_all(MYSQLI_ASSOC);
         }
 
+        /**
+            * Retrieves EOIs by applicant's first name or last name.
+            *
+            * @param string $firstName The first name of the applicant.
+            * @param string $lastName The last name of the applicant.
+            * @return array An array of EOIs that match the given first name or last name.
+        */
         public function getEOIsByName($firstName, $lastName): array {
             $query = "SELECT * FROM eoi WHERE firstName = ? OR lastName = ?";
             $stmt = $this->conn->prepare($query);
@@ -74,17 +106,21 @@
         }
 
         /**
-               * Get total number of EOIs
-               *
-               * Retrieves the total count of EOIs in the database.
-               *
-               * @return int The total number of EOIs
+            * Retrieves the total count of EOIs in the database.
+            *
+            * @return int The total number of EOIs.
         */
         public function getTotalEOIs(): int {
             $result = $this->conn->query("SELECT COUNT(*) as total FROM eoi");
             return (int)$result->fetch_assoc()['total'];
         }
 
+        /**
+            * Deletes EOIs associated with a specific job reference.
+            *
+            * @param string $jobRef The job reference number for which EOIs should be deleted.
+            * @return bool Returns true if the deletion is successful, false otherwise.
+        */
         public function deleteEOIsByJobRef($jobRef): bool {
             $query = "DELETE FROM eoi WHERE jobRef = ?";
             $stmt = $this->conn->prepare($query);
@@ -92,6 +128,13 @@
             return $stmt->execute();
         }
 
+        /**
+            * Updates the status of a specific EOI.
+            *
+            * @param int $eoiNum The unique number of the EOI.
+            * @param string $newStatus The new status to be set (e.g., 'Pending', 'Reviewed', 'Accepted', 'Rejected').
+            * @return bool Returns true if the update is successful, false otherwise.
+        */
         public function updateEOIStatus($eoiNum, $newStatus): bool {
             $query = "UPDATE eoi SET status = ? WHERE EOInum = ?";
             $stmt = $this->conn->prepare($query);
@@ -104,32 +147,16 @@
         }
     }
 
-    // Check if user is logged in
-    // if (!isset($_SESSION['user_id'])) {
-    //     header("Location: login.php?manage=invalid_user");
-    //     exit();
-    // }
-
-    // Refresh user role
-    if (!refreshUserRole($_SESSION['user_id'])) {
-        session_destroy();
-        header("Location: login.php?error=invalid_user");
-        exit();
-    }
-
-    // Check if user is admin
-    if (strtolower($_SESSION['role']) !== 'admin') {
-        header("Location: login.php?manage=error");
-        exit();
-    }
-
+    // Init db and create necessary vars
     $manager = new EOIManager();
     $limit = isset($_SESSION['limit']) ? $_SESSION['limit'] : 10;
     $offset = 0;
 
+    // Get EOIs by job ref
     $totalEOIs = $manager->getTotalEOIs();
     $results = $manager->getAllEOIs($limit, $offset);
 
+    // Handle pagination and filters=)
     if (isset($_POST['action'])) {
         switch ($_POST['action']) {
             case 'showMore':
@@ -237,6 +264,7 @@
             <div class="tableHeading-container">
                 <h2>EOI Records</h2>
                 
+                <!-- Sort section -->
                 <div class="sort-controls">
                     <form method="post" class="sort-form">
                         <input type="hidden" name="action" value="sort">
