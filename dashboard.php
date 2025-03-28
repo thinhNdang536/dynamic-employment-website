@@ -155,17 +155,23 @@
         */
         public function getUserEOIs($userId): array {
             // Kinda a complicated query but it should work:>
-            $query = "SELECT e.* FROM eoi e --select all columns from eoi (aka alias: e)
+            $query = "SELECT e.* FROM eoi e 
+                     -- select all columns from eoi (aka alias: e)
+
                       -- To link 2 tables
                       -- After ON is the condition=)
-
                       -- JSON_CONTAINS(json_doc, json_val, path): its gonna check if json_val is inside json_doc or not:v
                       -- Because e.EOInum is int but u.eoinums is json, we need to convert e.EOInum to json first:vv
-                      INNER JOIN users u ON JSON_CONTAINS(u.eoiNums, CAST(e.EOInum AS JSON), '$') -- Respectively check if e.EOInum is inside u.eoiNums
-                      
-                      WHERE u.id = ? -- Filter by user ID to get only EOIs submitted by the specified user
+                      -- $ for checking all
 
-                      ORDER BY e.submitTime DESC -- Sort the results by submission time in descending order=))
+                      INNER JOIN users u ON JSON_CONTAINS(u.eoiNums, CAST(e.EOInum AS JSON), '$')
+                      -- Respectively check if e.EOInum is inside u.eoiNums
+                      
+                      WHERE u.id = ?
+                      -- Filter by user ID to get only EOIs submitted by the specified user
+
+                      ORDER BY e.submitTime DESC
+                      -- Sort the results by submission time in descending order=))
                      ";
             // Quite complicated right? ;)
             $stmt = $this->conn->prepare($query);
