@@ -29,7 +29,7 @@
             Your EOI Number: <?php echo htmlspecialchars((string)$eoi_number); ?>
         </div>
         <p>Please save this number for future reference.</p>
-        <a href="dashboard.php" class="btn">Return to Home</a>
+        <a href="dashboard.php" class="btn">Return to Dashboard</a>
     </div>
 </body>
 </html>

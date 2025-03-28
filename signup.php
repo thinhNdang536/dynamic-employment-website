@@ -153,7 +153,9 @@
         }
     
         // My db have limited connection so...=))
-        $stmt->close();
+        if (isset($stmt)) {
+            $stmt->close();
+        }
         $conn->close();
     }
 ?>

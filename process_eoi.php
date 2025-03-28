@@ -32,7 +32,7 @@
         const PATTERNS = [
             'JOB_REF_NUM' => '/^[a-zA-Z0-9]{5}$/',
             'NAME' => '/^[a-zA-Z]{1,20}$/',
-            'DATE' => '/^\d{2}\/\d{2}\/\d{4}$/',
+            'DATE' => '/^\d{4}-\d{2}-\d{2}$/',
             'PHONE' => '/^[0-9]{8,12}$/',
             'POSTCODE' => '/^\d{4}$/',
             'EMAIL' => '/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/'
@@ -60,6 +60,7 @@
             'PHONE_NUM' => 'Invalid phone number',
             'STATE' => 'Invalid state',
             'POSTCODE' => 'Postcode does not match state',
+            'DATE' => 'Invalid date format',
             'DOB' => 'Age must be between 15 and 80',
             'SKILLS' => 'At least one skill must be selected',
             'OTHER_SKILLS' => 'Other skills description required',
@@ -165,15 +166,23 @@
         */
         private function validateDateFormat(string $date) {
             if (!preg_match(ValidationRules::PATTERNS['DATE'], $date)) {
-                throw new InvalidArgumentException(ValidationRules::MESSAGES['DOB']);
+                throw new InvalidArgumentException(ValidationRules::MESSAGES['DATE']);
             }
 
-            $parts = array_map('intval', explode('/', $date));
-            if (count($parts) !== 3 || !checkdate($parts[1], $parts[0], $parts[2])) {
-                throw new InvalidArgumentException(ValidationRules::MESSAGES['DOB']);
+            $parts = array_map('intval', explode('-', $date));
+            if (count($parts) !== 3 || !checkdate($parts[1], $parts[2], $parts[0])) {
+                throw new InvalidArgumentException(ValidationRules::MESSAGES['DATE']);
             }
 
-            return DateTime::createFromFormat('d/m/Y', $date);
+            // Create a DateTime object from the date string
+            $dateTime = DateTime::createFromFormat('Y-m-d', $date);
+
+            // Check if DateTime creation was successful
+            if ($dateTime === false) {
+                throw new InvalidArgumentException(ValidationRules::MESSAGES['DATE']);
+            }
+        
+            return $dateTime;
         }
 
         /**
@@ -184,9 +193,9 @@
         */
         private function validateAge(DateTime $dob): string {
             $age = $dob->diff(new DateTime())->y;
-            
+
             if ($age < 15 || $age > 80) {
-                $this -> errors[] = ValidationRules::MESSAGES['DOB'];
+                $this -> errors[] = "{$age} ValidationRules::MESSAGES['DOB']";
             }
 
             return $dob->format('Y-m-d');
@@ -353,7 +362,7 @@
             skills text NOT NULL,
             otherSkills text DEFAULT NULL,
             status enum('New','Current','Final') NOT NULL DEFAULT 'New',
-            submitTime timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+            submitTime timestamp DEFAULT NULL,
             PRIMARY KEY (EOInum),
             UNIQUE KEY email (email),
             UNIQUE KEY phone (phoneNum)
@@ -402,12 +411,46 @@
             throw new RuntimeException('Execute failed: ' . $stmt->error);
         }
 
-        // Store EOI number in session
-        $_SESSION['eoi_number'] = $conn->insert_id;
-        
+        $newEoiNum = $conn->insert_id;
+        if ($newEoiNum === 0) {
+            throw new RuntimeException('No new auto-increment ID generated.');
+        }
+
+        // Fetch the user's current data (including eoiNums) from the database
+        $stmt = $conn->prepare("SELECT eoiNums FROM users WHERE id = ?");
+        $stmt->bind_param('i', $_SESSION['user_id']);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
+        $stmt->close();
+
+        // Parse existing EOI numbers or create a new array if null
+        $eoiNums = [];
+        if (isset($user['eoiNums']) && $user['eoiNums'] !== null) {
+            $decoded = json_decode($user['eoiNums'], true);
+            $eoiNums = is_array($decoded) ? $decoded : [];
+        }
+
+        // Append the new EOI number (obtained from the insert operation)
+        $eoiNums[] = $newEoiNum;
+
+        // Store the new EOI number in session (optional)
+        $_SESSION['eoi_number'] = $newEoiNum;
+
+        // Convert the updated array to JSON
+        $eoiNumsJson = json_encode($eoiNums);
+
+        // Update the user's eoiNums field with the new JSON data
+        $stmt = $conn->prepare("UPDATE users SET eoiNums = ? WHERE id = ?");
+        $stmt->bind_param('si', $eoiNumsJson, $_SESSION['user_id']);
+        if (!$stmt->execute()) {
+            throw new RuntimeException('Failed to update user EOI numbers: ' . $stmt->error);
+        }
+        $stmt->close();
+
         // Clear form data on success
         // unset($_SESSION['form_data']);
-        
+
         header('Location: success.php');
         exit();
 

@@ -65,8 +65,9 @@
             * @param int $offset The offset for pagination
             * @return array An array of EOI records
         */
-        public function getAllEOIs($limit, $offset): array {
-            $query = "SELECT * FROM eoi ORDER BY submitTime DESC LIMIT ? OFFSET ?";
+        public function getAllEOIs($limit, $offset, $sortField = null): array {
+            $orderBy = $sortField ? "ORDER BY $sortField" : "ORDER BY submitTime DESC";
+            $query = "SELECT * FROM eoi $orderBy LIMIT ? OFFSET ?";
             $stmt = $this->conn->prepare($query);
             $stmt->bind_param("ii", $limit, $offset);
             $stmt->execute();
@@ -154,7 +155,7 @@
 
     // Get EOIs by job ref
     $totalEOIs = $manager->getTotalEOIs();
-    $results = $manager->getAllEOIs($limit, $offset);
+    $results = $manager->getAllEOIs($limit, $offset, isset($_SESSION['sortField']) ? $_SESSION['sortField'] : null);
 
     // Handle pagination and filters=)
     if (isset($_POST['action'])) {
@@ -185,12 +186,35 @@
                 $jobRef = $_POST['jobRef'];
                 $results = $manager->getEOIsByJobRef($jobRef);
                 $totalEOIs = count($results);
+                break;
 
             case 'filterByName':
                 $firstName = $_POST['firstName'];
                 $lastName = $_POST['lastName'];
                 $results = $manager->getEOIsByName($firstName, $lastName);
                 $totalEOIs = count($results);
+                break;
+
+            case 'deleteByJobRef':
+                $jobRef = $_POST['jobRefToDelete'];
+                $manager->deleteEOIsByJobRef($jobRef);
+
+            case 'updateStatus':
+                $jobRef = $_POST['eoiNum'];
+                $status = $_POST['newStatus'];
+                $manager->updateEOIStatus($jobRef, $status);
+
+                header("Location: " . $_SERVER['PHP_SELF']);
+                exit;
+
+            case 'sort':
+                if (!empty($_POST['sortField'])) {
+                    $_SESSION['sortField'] = $_POST['sortField'];
+                } else {
+                    unset($_SESSION['sortField']);
+                }
+                header("Location: " . $_SERVER['PHP_SELF']);
+                exit;
         }
     }
 ?>

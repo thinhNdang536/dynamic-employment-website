@@ -330,9 +330,9 @@
             <!-- Auth Buttons -->
             <div class="auth-buttons">
                 <?php if(isset($_SESSION['user_id'])): ?>
-                    <a href="dashboard.php" class="auth-btn account-btn">
-                        <i class="fas fa-user-circle"></i>
-                        Dashboard
+                    <a href="logout.php" class="auth-btn account-btn">
+                        <i class="fas fa-sign-out"></i>
+                        Logout
                     </a>
                 <?php endif; ?>
             </div>
@@ -502,9 +502,6 @@
                         <h3>My EOIs</h3>
                         <?php if (empty($userEOIs)): ?>
                             <p class="no-eois">You haven't submitted any applications yet.</p>
-                            <div class="apply-link">
-                                <a href="apply.php" class="manage-btn">Submit an Application</a>
-                            </div>
                         <?php else: ?>
                             <table>
                                 <tr>
@@ -525,6 +522,9 @@
                                 <?php endforeach; ?>
                             </table>
                         <?php endif; ?>
+                        <div class="apply-link">
+                            <a href="apply.php" class="manage-btn">Submit an Application</a>
+                        </div>
                     </div>
                 </div>
             </div>

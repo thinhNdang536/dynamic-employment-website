@@ -14,12 +14,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <link rel="stylesheet" href="styles/style_apply.css">
-    <link rel="stylesheet" href="styles/style_index.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Job Application Form</title>
+    <link rel="stylesheet" href="styles/style_apply.css">
+    <link rel="stylesheet" href="styles/style_index.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 </head>
 <body>
     <!-- HEADER SECTION -->
@@ -104,7 +104,7 @@
                     </div>
                     <div>
                         <label for="dob">Date of Birth:</label>
-                        <input type="text" id="dob" name="dob" required
+                        <input type="date" id="dob" name="dob" required
                             value="<?php echo isset($form_data['dob']) ? htmlspecialchars($form_data['dob']) : ''; ?>">
                     </div>
                     <div>
