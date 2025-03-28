@@ -37,8 +37,8 @@
            * Initializes the database connection.
         */
         public function __construct() {
-        $db = new Database();
-        $this->conn = $db->getConnection();
+            $db = new Database();
+            $this->conn = $db->getConnection();
         }
 
         /**

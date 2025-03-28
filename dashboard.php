@@ -283,6 +283,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Custom Stylesheet -->
+    <link rel="stylesheet" href="styles/style_index.css">
     <link rel="stylesheet" href="styles/style_dashboard.css">
     <title>JobsTime - Dashboard</title>
 </head>
@@ -320,12 +321,19 @@
                     <p class="nav-main-item">Enhancements</p>
                     <p class="nav-sub-item">Feedback and Suggestions</p>
                 </a>
+                    <a href="phpenhancements.php" class="nav-item" id="last-item">
+                    <p class="nav-main-item">PHP Enhancements</p>
+                    <p class="nav-sub-item">Feedback and Suggestions</p>
+                </a>
             </nav>
 
             <!-- Auth Buttons -->
             <div class="auth-buttons">
-                <?php if(isset($_SESSION['username'])): ?>
-                    <a href="logout.php" class="auth-btn">Logout</a>
+                <?php if(isset($_SESSION['user_id'])): ?>
+                    <a href="dashboard.php" class="auth-btn account-btn">
+                        <i class="fas fa-user-circle"></i>
+                        Dashboard
+                    </a>
                 <?php endif; ?>
             </div>
         </div>
@@ -540,6 +548,7 @@
                     <li><a href="jobs.php">Job</a></li>
                     <li><a href="apply.php">Apply</a></li>
                     <li><a href="enhancements.php">Enhancements</a></li>
+                    <li><a href="phpenhancements.php">PHP Enhancements</a></li>
                 </ul>
             </div>
         </div>

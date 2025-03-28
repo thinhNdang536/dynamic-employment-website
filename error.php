@@ -3,7 +3,7 @@
 
     // Redirect if there are no errors deteched (aka redirecting to apply.php on page refreshing)
     if (!isset($_SESSION['errors']) || empty($_SESSION['errors'])) {
-        header('Location: index.html');
+        header('Location: index.php');
         exit();
     }
 ?>
