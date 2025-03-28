@@ -10,7 +10,7 @@
 		*
 		* @category Management
 		* @package  Assignment2
-		* @author   Dang Quang Thinh
+		* @author   Dang Quang Thinh & Nguyen Bach Tung
 		* @version  1.0.0
 	*/
 
