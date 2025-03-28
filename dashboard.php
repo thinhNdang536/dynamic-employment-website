@@ -96,12 +96,12 @@
 
 
     /**
-           * EOISummary Class
-           *
-           * This class provides various methods to retrieve summary statistics and recent data
-           * for Expressions of Interest (EOIs), users, and job listings. It is used by the
-           * dashboard to display management summaries for admin users as well as personal EOI
-           * data for non-admin users.
+        * EOISummary Class
+        *
+        * This class provides various methods to retrieve summary statistics and recent data
+        * for Expressions of Interest (EOIs), users, and job listings. It is used by the
+        * dashboard to display management summaries for admin users as well as personal EOI
+        * data for non-admin users.
     */
     class EOISummary extends SummaryBase {
         /**
@@ -154,7 +154,20 @@
             * @return array An array of EOI records for the specified user.
         */
         public function getUserEOIs($userId): array {
-            $query = "SELECT * FROM eoi WHERE user_id = ? ORDER BY submitTime DESC";
+            // Kinda a complicated query but it should work:>
+            $query = "SELECT e.* FROM eoi e --select all columns from eoi (aka alias: e)
+                      -- To link 2 tables
+                      -- After ON is the condition=)
+
+                      -- JSON_CONTAINS(json_doc, json_val, path): its gonna check if json_val is inside json_doc or not:v
+                      -- Because e.EOInum is int but u.eoinums is json, we need to convert e.EOInum to json first:vv
+                      INNER JOIN users u ON JSON_CONTAINS(u.eoiNums, CAST(e.EOInum AS JSON), '$') -- Respectively check if e.EOInum is inside u.eoiNums
+                      
+                      WHERE u.id = ? -- Filter by user ID to get only EOIs submitted by the specified user
+
+                      ORDER BY e.submitTime DESC -- Sort the results by submission time in descending order=))
+                     ";
+            // Quite complicated right? ;)
             $stmt = $this->conn->prepare($query);
             $stmt->bind_param('i', $userId);
             $stmt->execute();
@@ -216,11 +229,6 @@
         *
         * This class handles summary-related operations for job listings,
         * such as retrieving the total number of jobs and the number of active jobs.
-        *
-        * @category Management
-        * @package  Assignment2
-        * @author   Dang Quang Thinh
-        * @version  1.0.0
     */
     class JobSummary extends SummaryBase {
         /**

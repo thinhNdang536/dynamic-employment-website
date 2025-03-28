@@ -1,6 +1,12 @@
 <?php
     session_start(); // Start the session for application and auth check
 
+    // Check if user is logged in
+    if (!isset($_SESSION['user_id'])) {
+        header("Location: login.php?apply=error");
+        exit();
+    }
+
     // Get stored form data from session, very important:vv
     $form_data = $_SESSION['form_data'] ?? [];
 ?>
