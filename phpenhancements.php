@@ -81,11 +81,22 @@
                 We have made several enhancements to improve the user experience and visual appeal of the website, specifically in php. Here are the key improvements:
             </p>
             <ul class="enhancements-list">
-                <li>Performance Improvements.</li>
-                <li>Security Enhancements.</li>
-                <li>Database & Query Enhancements.</li>
-                <li>Code Quality & Maintainability.</li>
-                <li>Improved Dependency Management.</li>
+                <li>Added login and signup page for authentication.</li>
+                <li>Added authorism to block users for suspicous login attempts.</li>
+                <li>Designed specific role for each user with different access levels.</li>
+                <li>Added authorism which requires login to access certain pages(such as apply, dashboard, management, etc).</li>
+                <li>Added dashboard page with both admin and user view.</li>
+                <li>Added summaries for admins' management and users's eoi application.</li>
+                <li>Added user mamanegement page for admins to manage users.</li>
+                <li>Added job mamanegement page for admins to manage jobs.</li>
+                <li>Added job status to enable or disable application for the job.</li>
+                <li>Check if username, email, and password are available before creating a new user.</li>
+                <li>Used class and OOP for better code structure and readability.</li>
+                <li>Writed clean docstrings for each function to make it easy to understand.</li>
+                <li>Used bind_param to prevent SQL injection.</li>
+                <li>Used hash password to prevent password from being seen.</li>
+                <li>Used recursion for deviding and conquer the santizing authorism.</li>
+                <li>Used session, url params for storing user data.</li>
             </ul>
         </div>
     </div>
