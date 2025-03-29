@@ -195,7 +195,7 @@
             $age = $dob->diff(new DateTime())->y;
 
             if ($age < 15 || $age > 80) {
-                $this -> errors[] = "{$age} ValidationRules::MESSAGES['DOB']";
+                $this -> errors[] = ValidationRules::MESSAGES['DOB'];
             }
 
             return $dob->format('Y-m-d');
