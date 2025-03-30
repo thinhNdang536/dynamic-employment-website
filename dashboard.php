@@ -285,6 +285,7 @@
     <!-- Custom Stylesheet -->
     <link rel="stylesheet" href="styles/style_index.css">
     <link rel="stylesheet" href="styles/style_dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <title>JobsTime - Dashboard</title>
 </head>
 <body>
