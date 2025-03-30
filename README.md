@@ -27,7 +27,7 @@ Welcome to the **Job Management System** repository! This system allows users to
 
 Check out a demo of the Job Management System in action! 🎬
 
-[🔗 Watch the Video Demo](https://link-to-your-video-demo.com)
+[🔗 Watch the Video Demo]([https://link-to-your-video-demo.com](https://youtu.be/_bACqgyiWXw))
 
 ---
 
@@ -92,10 +92,10 @@ C:\xampp\htdocs\job-management-system
 
 ## 👥 Team Members 👥
 
-- **Thinh Ndang** (Developer) - Added **admin login verification** for better management 💻.
-- **[Your Name]** (Developer) - Worked on **job creation and updating bug fixes** 🐞.
-- **[Another Team Member's Name]** (Developer) - Improved **user authentication flow** 🔒.
-
+- **Thinh Ndang** (Developer) - Worked on **EOI database table**, **EOI procession** and **Management** 💻.
+- **Phuong Nguyen** (Leader) - Manage **Project File Tree** and **Group Timetable**📅.
+- **Tung Nguyen** (Developer) - Worked on **Job database table** and **Job description displaying** 💼.
+- **Minh Nguyen** (Developer) - Worked on **Database connection** and **Presentation** 💼.
 ---
 
 ## 🤝 Contributing 🤝
