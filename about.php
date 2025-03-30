@@ -119,7 +119,7 @@
                         <ul>
                             <li>Create an EOI table</li>
                             <li>Adding validated records to the EOI table</li>
-                            <li>Help create a file to store your database connection variables</li>
+                            <li>Help create a file to store database connection variables</li>
                         </ul>
                     </aside>
                 </div>
@@ -131,7 +131,7 @@
                     <aside>
                         <h4>Contributions:</h4>
                         <ul>
-                            <li>Use PHP to reuse common elements in your Web site</li>
+                            <li>Use PHP to reuse common elements in Web site</li>
                             <li>Update about page</li>
                             <li>Help enhancements</li>
                         </ul>
@@ -158,7 +158,7 @@
                     <aside>
                         <h4>Contributions:</h4>
                         <ul>
-                            <li>Help create a file to store your database connection variables</li>
+                            <li>Help create a file to store database connection variables</li>
                             <li>Help enhancements</li>
                         </ul>
                     </aside>
@@ -183,43 +183,52 @@
                 </tr>
                 <tr>
                     <td>Monday</td>
-                    <td>17:00 - 22:00</td>
-                    <td>17:00 - 22:00</td>
-                    <td>17:00 - 22:00</td>
-                    <td>17:00 - 22:00</td>
+                    <td>10:00 - 14:00</td>
+                    <td>13:00 - 18:00</td>
+                    <td>08:00 - 12:00</td>
+                    <td>15:00 - 20:00</td>
                 </tr>
                 <tr>
                     <td>Tuesday</td>
-                    <td colspan="4">No Schedule</td>
+                    <td>11:00 - 16:00</td>
+                    <td>No Schedule</td>
+                    <td>No Schedule</td>
+                    <td>09:00 - 13:00</td>
                 </tr>
                 <tr>
                     <td>Wednesday</td>
-                    <td>17:00 - 22:00</td>
-                    <td>17:00 - 22:00</td>
-                    <td>17:00 - 22:00</td>
-                    <td>17:00 - 22:00</td>
+                    <td>14:00 - 19:00</td>
+                    <td>16:00 - 21:00</td>
+                    <td>10:00 - 15:00</td>
+                    <td>18:00 - 22:00</td>
                 </tr>
                 <tr>
                     <td>Thursday</td>
-                    <td colspan="4">No Schedule</td>
+                    <td>No Schedule</td>
+                    <td>13:00 - 18:00</td>
+                    <td>09:00 - 14:00</td>
+                    <td>14:00 - 19:00</td>
                 </tr>
                 <tr>
                     <td>Friday</td>
-                    <td>17:00 - 22:00</td>
-                    <td>17:00 - 22:00</td>
-                    <td>17:00 - 22:00</td>
-                    <td>17:00 - 22:00</td>
+                    <td>15:00 - 20:00</td>
+                    <td>17:00 - 21:00</td>
+                    <td>12:00 - 17:00</td>
+                    <td>09:00 - 13:00</td>
                 </tr>
                 <tr>
                     <td>Saturday</td>
-                    <td>17:00 - 22:00</td>
-                    <td>17:00 - 22:00</td>
-                    <td>17:00 - 22:00</td>
-                    <td>17:00 - 22:00</td>
+                    <td>13:00 - 18:00</td>
+                    <td>14:00 - 19:00</td>
+                    <td>10:00 - 15:00</td>
+                    <td>16:00 - 20:00</td>
                 </tr>
                 <tr>
                     <td>Sunday</td>
-                    <td colspan="4">No Schedule</td>
+                    <td>No Schedule</td>
+                    <td>No Schedule</td>
+                    <td>No Schedule</td>
+                    <td>No Schedule</td>
                 </tr>
             </tbody>
         </table>
