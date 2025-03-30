@@ -27,7 +27,7 @@ Welcome to the **Job Management System** repository! This system allows users to
 
 Check out a demo of the Job Management System in action! 🎬
 
-[🔗 Watch the Video Demo]([https://link-to-your-video-demo.com](https://youtu.be/_bACqgyiWXw))
+[![🔗 Watch the Video Demo](https://img.youtube.com/vi/_bACqgyiWXw/maxresdefault.jpg)](https://youtu.be/_bACqgyiWXw)
 
 ---
 
