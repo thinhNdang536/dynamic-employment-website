@@ -95,7 +95,7 @@ C:\xampp\htdocs\job-management-system
 - **Thinh Ndang** (Developer) - Worked on **EOI database table**, **EOI procession** and **Management** 💻.
 - **Phuong Nguyen** (Leader) - Manage **Project File Tree** and **Group Timetable**📅.
 - **Tung Nguyen** (Developer) - Worked on **Job database table** and **Job description displaying** 💼.
-- **Minh Nguyen** (Developer) - Worked on **Database connection** and **Presentation** 💼.
+- **Minh Nguyen** (Developer) - Worked on **Database connection** and **Presentation** ⚙️.
 ---
 
 ## 🤝 Contributing 🤝
