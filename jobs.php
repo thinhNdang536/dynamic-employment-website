@@ -229,7 +229,12 @@
 								</ul>
 							</section>
 						</aside>
-						<a href="apply.php?ref=<?php echo urlencode($job['jobRef']); ?>" class="apply-button">Apply Now</a>
+						
+						<form method="POST" action="apply.php">
+							<!-- Store the jobRef in a hidden input -->
+							<input type="hidden" name="jobRef" value="<?php echo htmlspecialchars($job['jobRef']); ?>">
+							<button type="submit" class="apply-button">Apply Now</button>
+						</form>
 					</div>
 				<?php endforeach; ?>
 			</div>

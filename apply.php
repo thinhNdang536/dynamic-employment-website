@@ -9,6 +9,10 @@
 
     // Get stored form data from session, very important:vv
     $form_data = $_SESSION['form_data'] ?? [];
+
+    if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['jobRef'])) {
+        $form_data['job_ref_num'] = $_POST['jobRef'];
+    }
 ?>
 
 <!DOCTYPE html>

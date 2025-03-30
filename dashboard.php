@@ -505,12 +505,14 @@
                         <?php else: ?>
                             <table>
                                 <tr>
+                                    <th>EOI #</th>
                                     <th>Job Reference</th>
                                     <th>Submit Date</th>
                                     <th>Status</th>
                                 </tr>
                                 <?php foreach($userEOIs as $eoi): ?>
                                 <tr>
+                                    <td><?php echo htmlspecialchars($eoi['EOInum']); ?></td>
                                     <td><?php echo htmlspecialchars($eoi['jobRef']); ?></td>
                                     <td><?php echo date('Y-m-d', strtotime($eoi['submitTime'])); ?></td>
                                     <td>

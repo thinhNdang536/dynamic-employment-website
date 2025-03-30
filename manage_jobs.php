@@ -338,6 +338,14 @@
                     'image' => $_POST['image'],
                     'active' => 1
                 ];
+
+                $stmt = $manager->conn->prepare("SELECT jobRef FROM jobs WHERE jobRef = ?");
+                $stmt->bind_param('s', $data['jobRef']);
+                $stmt->execute();
+                if ($stmt->get_result()->num_rows > 0) {
+                    $error = 'Job reference already exists';
+                    break;
+                }
                 
                 if ($manager->createJob($data)) {
                     $message = "Job created successfully.";

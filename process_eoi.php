@@ -34,6 +34,8 @@
             'NAME' => '/^[a-zA-Z]{1,20}$/',
             'DATE' => '/^\d{4}-\d{2}-\d{2}$/',
             'PHONE' => '/^[0-9]{8,12}$/',
+            'ADDRESS' => '/^[a-zA-Z0-9\s,.\-#]{3,100}$/',
+            'SUBURB_TOWN' => '/^[a-zA-Z\s\-\'\.]{2,50}$/',
             'POSTCODE' => '/^\d{4}$/',
             'EMAIL' => '/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/'
         ];
@@ -53,11 +55,14 @@
         // Error messages
         const MESSAGES = [
             'JOB_REF_NUM' => 'Job reference number must be exactly 5 alphanumeric characters',
+            'NON_EXIST_JOBREF' => 'There is no job with this job reference number',
             'FIRST_NAME' => 'First name must be up to 20 alphabetic characters',
             'LAST_NAME' => 'Last name must be up to 20 alphabetic characters',
             'GENDER' => 'Invalid gender selection',
             'EMAIL' => 'Invalid email format',
             'PHONE_NUM' => 'Invalid phone number',
+            'ADDRESS' => 'Invalid address',
+            'SUBURB_TOWN' => 'Invalid suburb/town',
             'STATE' => 'Invalid state',
             'POSTCODE' => 'Postcode does not match state',
             'DATE' => 'Invalid date format',
@@ -96,6 +101,16 @@
                 'name' => 'Phone Number',
                 'pattern' => self::PATTERNS['PHONE'],
                 'error' => self::MESSAGES['PHONE_NUM']
+            ],
+            'address' => [
+                'name' => 'Address',
+                'pattern' => self::PATTERNS['ADDRESS'],
+                'error' => self::MESSAGES['ADDRESS']
+            ],
+            'town' => [
+                'name' => 'Suburb/Town',
+                'pattern' => self::PATTERNS['SUBURB_TOWN'],
+                'error' => self::MESSAGES['SUBURB_TOWN']
             ]
         ];
 
@@ -334,11 +349,10 @@
             throw new RuntimeException(ValidationRules::MESSAGES['INVALID_REQUEST']);
         }
 
+        // Check if fields meet pattern
         $validator = new FormValidator();
         if (!$validator->validateInput($_POST)) {
             $_SESSION['errors'] = $validator->getErrors();
-            header('Location: error.php');
-            exit();
         }
         $data = $validator->getSanitizedData();
 
@@ -369,19 +383,35 @@
         )";
         $conn -> query($create_table_sql);
 
+        // Check if jobRef not exists
+        $stmt = $conn->prepare("SELECT jobRef FROM jobs WHERE jobRef = ?");
+        $stmt->bind_param('s', $data['job_ref_num']);
+        $stmt->execute();
+        if ($stmt->get_result()->num_rows === 0) {
+            $_SESSION['errors'] = ValidationRules::MESSAGES['NON_EXIST_JOBREF'];
+            header('Location: error.php');
+            exit();
+        }
+
+        // Check if email already exists
         $stmt = $conn->prepare("SELECT EOInum FROM eoi WHERE email = ?");
         $stmt->bind_param('s', $data['email']);
         $stmt->execute();
         if ($stmt->get_result()->num_rows > 0) {
-            throw new InvalidArgumentException(ValidationRules::MESSAGES['DUPLICATE_EMAIL']);
+            $_SESSION['errors'][] = ValidationRules::MESSAGES['DUPLICATE_EMAIL'];
         }
 
-        // Check phone
+        // Check if phonenumber already exists
         $stmt = $conn->prepare("SELECT EOInum FROM eoi WHERE phoneNum = ?");
         $stmt->bind_param('s', $data['phone_num']);
         $stmt->execute();
         if ($stmt->get_result()->num_rows > 0) {
-            throw new InvalidArgumentException(ValidationRules::MESSAGES['DUPLICATE_PHONE']);
+            $_SESSION['errors'][] = ValidationRules::MESSAGES['DUPLICATE_PHONE'];
+        }
+
+        if (!empty($_SESSION['errors'])) {
+            header('Location: error.php');
+            exit();
         }
 
         // // Prepare INSERT statement

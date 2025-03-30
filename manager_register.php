@@ -138,7 +138,7 @@
 <body>
     <main class="main-container">
         <a href="dashboard.php" class="go-back-btn">←</a>
-        <h2><img src="assets/img/home/light_logo.png" alt="Logo Image">Create Manager Account</h2>
+        <h2><img src="styles/images/light_logo.png" alt="Logo Image">Create Manager Account</h2>
 
         <form method="POST" action="">
             <div class="form-group">
