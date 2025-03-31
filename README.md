@@ -36,7 +36,7 @@ Check out a demo of the Job Management System in action! 🎬
 ### 1️⃣ Clone the repository
 
 ```bash
- git clone https://github.com/your-username/job-management-system.git
+ git clone https://github.com/thinhNdang536/dynamic-employment-website
 ```
 
 ### 2️⃣ Set up XAMPP
@@ -69,12 +69,12 @@ $dbname = "job_management_system";
 Move the entire project folder into the `htdocs` directory inside your XAMPP installation directory:
 
 ```bash
-C:\xampp\htdocs\job-management-system
+C:\xampp\htdocs\dynamic-employment-website
 ```
 
 ### 6️⃣ Run the project 🚀
 
-- Open your browser and go to: [http://localhost/job-management-system](http://localhost/job-management-system)
+- Open your browser and go to: [http://localhost/dynamic-employment-website](http://localhost/dynamic-employment-website)
 
 ---
 
