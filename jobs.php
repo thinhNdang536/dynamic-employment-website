@@ -130,41 +130,43 @@
 	<!-- Main Content Section -->
 	<main class="main-content">
 		<h1>Join Us:</h1>
+		<div class="jobs-container">
 		<?php if (empty($jobs)): ?>
-			<div class="job-listing no-jobs">
-				<img src="assets/img/job/no-jobs.jpg" width="200" height="200" alt="No Jobs Available">
-				<section>
-					<h2>No Positions Available</h2>
-					<h4>Status: Unavailable</h4>
-					<p class="job-description">We currently don't have any open positions. Please check back later for new opportunities.</p>
-				</section>
-				<aside>
-					<section>
-						<h2 class="salary">Salary Range:</h2>
-						<p>Not Available</p>
-					</section>
-					<section>
-						<h3>Requirements:</h3>
-						<h4 class="requirement">Essentials:</h4>
-						<ol>
-							<li>No requirements listed</li>
-						</ol>
-						<h4 class="requirement">Preferable:</h4>
-						<ol>
-							<li>No preferences listed</li>
-						</ol>
-					</section>
-					<section>
-						<h3>Key Responsibilities:</h3>
-						<ul>
-							<li>No responsibilities listed</li>
-						</ul>
-					</section>
-				</aside>
-				<button class="apply-button" disabled>No Positions Available</button>
-			</div>
-		<?php else: ?>
-			<div class="jobs-container">
+				<?php for ($i = 0; $i < 3; $i++): ?>
+					<div class="job-listing no-job">
+						<img src="assets/img/job/no-jobs.jpg" width="200" height="200" alt="No Jobs Available">
+						<section>
+							<h2>No Positions Available</h2>
+							<h4>Status: Unavailable</h4>
+							<p class="job-description">We currently don't have any open positions. Please check back later for new opportunities.</p>
+						</section>
+						<aside>
+							<section>
+								<h2 class="salary">Salary Range:</h2>
+								<p>Not Available</p>
+							</section>
+							<section>
+								<h3>Requirements:</h3>
+								<h4 class="requirement">Essentials:</h4>
+								<ol>
+									<li>No requirements listed</li>
+								</ol>
+								<h4 class="requirement">Preferable:</h4>
+								<ol>
+									<li>No preferences listed</li>
+								</ol>
+							</section>
+							<section>
+								<h3>Key Responsibilities:</h3>
+								<ul>
+									<li>No responsibilities listed</li>
+								</ul>
+							</section>
+						</aside>
+						<button class="apply-button" disabled>No Positions Available</button>
+					</div>
+				<?php endfor; ?>
+			<?php else: ?>
 				<?php foreach ($jobs as $job): ?>
 					<div class="job-listing">
 						<img src="<?php echo 'images/jobs/'. htmlspecialchars($job['image']); ?>" 
@@ -233,12 +235,14 @@
 						<form method="POST" action="apply.php">
 							<!-- Store the jobRef in a hidden input -->
 							<input type="hidden" name="jobRef" value="<?php echo htmlspecialchars($job['jobRef']); ?>">
-							<button type="submit" class="apply-button">Apply Now</button>
+							<button type="submit" class="apply-button <?php echo $job['active'] ? 'avalaible-button' : 'unavalaible-button'?>" <?php echo $job['active'] ? '' : 'disabled' ?>>
+							<?php echo $job['active'] ? 'Apply Now' : 'Currently unavailable' ?>
+							</button>
 						</form>
 					</div>
 				<?php endforeach; ?>
-			</div>
-		<?php endif; ?>
+			<?php endif; ?>
+		</div>
 	</main>
 
 	<!-- FOOTER SECTION -->

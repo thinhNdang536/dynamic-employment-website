@@ -59,7 +59,7 @@
             * @return array Associative array of users.
         */
         public function getAllUsers($limit = 10, $offset = 0) {
-            $query = "SELECT id, username, email, created_at, last_login, is_active 
+            $query = "SELECT id, username, email, eoiNums, created_at, last_login, is_active 
                     FROM users 
                     ORDER BY created_at DESC 
                     LIMIT ? OFFSET ?";
@@ -223,6 +223,7 @@
                 <tr>
                     <th>Username</th>
                     <th>Email</th>
+                    <th>Submitted EOI Numbers</th>
                     <th>Created At</th>
                     <th>Last Login</th>
                     <th>Status</th>
@@ -234,6 +235,29 @@
                     <tr>
                         <td><?php echo htmlspecialchars($user['username']); ?></td>
                         <td><?php echo htmlspecialchars($user['email']); ?></td>
+                        <td>
+                        <?php
+                            $eoiNums = $user['eoiNums'];
+                            if ($eoiNums !== null) {
+                                // Decode the JSON string to a PHP array
+                                $decodedEoiNums = json_decode($eoiNums, true);
+                                
+                                // Check if decoding was successful and it's an array
+                                if (is_array($decodedEoiNums)) {
+                                    // Remove empty values, they should not be here:vv
+                                    $filteredEoiNums = array_filter($decodedEoiNums, fn($value) => !is_null($value) && $value !== '');
+                                    
+                                    // Display the filtered result, or "None" if no valid values are found
+                                    echo !empty($filteredEoiNums) ? implode(", ", $filteredEoiNums) : "None";
+                                } else {
+                                    echo "None";
+                                }
+                            } else {
+                                // If eoiNums is null
+                                echo "None";
+                            }
+                            ?>
+                        </td>
                         <td><?php echo htmlspecialchars($user['created_at']); ?></td>
                         <td><?php echo $user['last_login'] ? htmlspecialchars($user['last_login']) : 'Never'; ?></td>
                         <td><?php echo htmlspecialchars($user['is_active']); ?></td>
