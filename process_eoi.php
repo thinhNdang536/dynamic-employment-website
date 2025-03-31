@@ -25,7 +25,7 @@
         *
         * This class defines the regex patterns, valid state/postcode pairs, error messages, and 
         * form field validation rules used by the FormValidator class.
-        * useing final for preventing inheritance=))
+        * using final for preventing class attribute changeed=))
         * aka data class:vv
     */
     final class ValidationRules {
