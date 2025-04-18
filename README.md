@@ -58,10 +58,11 @@ Check out a demo of the Job Management System in action! 🎬
 Example:
 
 ```php
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "job_management_system";
+$host = "localhost";
+$user = "root";
+$pwd = "123";
+$sql_db = "db_name";
+$port = 3306
 ```
 
 ### 5️⃣ Move the project to `htdocs` 📂
