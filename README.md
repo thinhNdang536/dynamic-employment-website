@@ -52,7 +52,7 @@ Check out a demo of the Job Management System in action! 🎬
 
 ### 4️⃣ Update the database connection ⚙️
 
-- Open the **database configuration file** (e.g., `config.php` or `db_connection.php`).
+- Open the **database configuration file** (e.g., `settings.php`).
 - Ensure that the database details match your phpMyAdmin setup.
 
 Example:
